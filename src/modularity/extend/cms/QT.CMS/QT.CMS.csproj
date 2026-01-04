@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\system\QT.Systems\QT.Systems.csproj" />
+    <ProjectReference Include="..\QT.CMS.Interfaces\QT.CMS.Interfaces.csproj" />
+  </ItemGroup>
+
+	<Import Project="..\..\Plugin.Build.targets" />
+</Project>

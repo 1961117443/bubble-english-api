@@ -1,0 +1,709 @@
+﻿using QT.Common.Core.Manager;
+using QT.Common.Core.Security;
+@if(Model.IsExport)
+{
+@:using QT.ClayObject;
+@:using QT.Common.Configuration;
+@:using QT.Common.Models.NPOI;
+@:using QT.DataEncryption;
+}
+using QT.Common.Enum;
+using QT.Common.Extension;
+using QT.Common.Filter;
+using QT.Common.Security;
+using QT.DependencyInjection;
+using QT.DynamicApiController;
+using QT.FriendlyException;
+@if(Model.IsBillRule && Model.DbLinkId != "0")
+{
+@:using QT.Systems.Interfaces.System;
+@:using QT.Systems.Entitys.System;
+}else if(Model.IsBillRule)
+{
+@:using QT.Systems.Interfaces.System;
+}else if(Model.DbLinkId != "0")
+{
+@:using QT.Systems.Interfaces.System;
+@:using QT.Systems.Entitys.System;
+}
+using QT.@(@Model.NameSpace).Entitys.Dto.@Model.ClassName;
+using QT.@(@Model.NameSpace).Entitys;
+using QT.@(@Model.NameSpace).Interfaces;
+using Mapster;
+using Microsoft.AspNetCore.Mvc;
+using SqlSugar;
+
+namespace QT.@(@Model.NameSpace);
+
+/// <summary>
+/// 业务实现：@(@Model.BusName).
+/// </summary>
+[ApiDescriptionSettings(Tag = "@(@Model.NameSpace)", Name = "@Model.ClassName", Order = 200)]
+[Route("api/@(@Model.NameSpace)/[controller]")]
+public class @(@Model.ClassName)Service : I@(@Model.ClassName)Service, IDynamicApiController, ITransient
+{
+    /// <summary>
+    /// 服务基础仓储.
+    /// </summary>
+    private readonly ISqlSugarRepository<@(@Model.MainTable)Entity> _repository;
+@if(Model.IsBillRule)
+{
+@:
+    @:/// <summary>
+    @:/// 单据规则服务.
+    @:/// </summary>
+    @:private readonly IBillRullService _billRullService;
+}
+@if(Model.DbLinkId != "0")
+{
+@:
+    @:/// <summary>
+    @:/// 数据库管理.
+    @:/// </summary>
+    @:private readonly IDataBaseManager _dataBaseManager;
+}
+@if(Model.IsBatchRemove)
+{
+@:
+    @:/// <summary>
+    @:/// 多租户事务.
+    @:/// </summary>
+    @:private readonly ITenant _db;
+}
+
+    /// <summary>
+    /// 用户管理.
+    /// </summary>
+    private readonly IUserManager _userManager;
+@if(Model.DbLinkId != "0")
+{
+@:
+    @:/// <summary>
+    @:/// 客户端.
+    @:/// </summary>
+    @:private SqlSugarClient _sqlSugarClient;
+}
+
+    /// <summary>
+    /// 初始化一个<see cref="@(@Model.ClassName)Service"/>类型的新实例.
+    /// </summary>
+    public @(@Model.ClassName)Service(
+        ISqlSugarRepository<@(@Model.MainTable)Entity> @(@Model.LowerMainTable)Repository,
+@if(Model.IsBillRule)
+{
+        @:IBillRullService billRullService,
+}
+@if(Model.DbLinkId != "0")
+{
+        @:IDataBaseManager dataBaseManager,
+}
+        ISqlSugarClient context,
+        IUserManager userManager)
+    {
+        _repository = @(@Model.LowerMainTable)Repository;
+@if(Model.IsBillRule)
+{
+        @:_billRullService = billRullService;
+}
+@if(Model.DbLinkId != "0")
+{
+        @:_dataBaseManager = dataBaseManager;
+        @:_sqlSugarClient = (SqlSugarClient)context;
+}
+@if(Model.IsBatchRemove)
+{
+        @:_db = context.AsTenant();
+}
+        _userManager = userManager;
+    }
+@foreach(var item in Model.Function)
+{
+@switch(item.FullName)
+{
+@*信息方法*@
+case "info":
+@:
+    @:/// <summary>
+    @:/// 获取@(@Model.BusName).
+    @:/// </summary>
+    @:/// <param name="id">主键值.</param>
+    @:/// <returns></returns>
+    @:[HttpGet("{id}")]
+    @:public async Task<dynamic> GetInfo(string id)
+    @:{
+@if(Model.DbLinkId != "0")
+{
+        @:var dbLink = await _repository.Context.Queryable<DbLinkEntity>().FirstAsync(it => it.Id.Equals("@(@Model.DbLinkId)"));
+        @:_sqlSugarClient = _dataBaseManager.ChangeDataBase(dbLink);
+        @:return (await _sqlSugarClient.Queryable<@(@Model.MainTable)Entity>().FirstAsync(it => it.@(@Model.PrimaryKey) == id)).Adapt<@(@Model.MainTable)InfoOutput>();
+}else{
+        @:return (await _repository.FirstOrDefaultAsync(x => x.@(@Model.PrimaryKey) == id)).Adapt<@(@Model.MainTable)InfoOutput>();
+}
+    @:}
+break;
+@*新增*@
+case "add":
+@:
+    @:/// <summary>
+    @:/// 新建@(@Model.BusName).
+    @:/// </summary>
+    @:/// <param name="input">参数.</param>
+    @:/// <returns></returns>
+    @:[HttpPost("")]
+    @:public async Task Create([FromBody] @(@Model.MainTable)CrInput input)
+    @:{
+        @:var entity = input.Adapt<@(@Model.MainTable)Entity>();
+        @:entity.@(@Model.PrimaryKey) = SnowflakeIdHelper.NextId();
+@foreach(var column in Model.TableField)
+{
+@switch(column.qtKey)
+{
+case "createTime":
+        @:entity.@column.ColumnName = DateTime.Now;
+break;
+case "createUser":
+        @:entity.@column.ColumnName = _userManager.UserId;
+break;
+case "currPosition":
+        @:entity.@column.ColumnName = _userManager.User.PositionId;
+break;
+case "currOrganize":
+        @:entity.@column.ColumnName = _userManager.User.OrganizeId;
+break;
+case "billRule":
+        @:entity.@column.ColumnName = await _billRullService.GetBillNumber("@(@column.Rule)");
+break;
+}
+}
+@*跨库*@
+@if(Model.DbLinkId != "0")
+{
+        @:var dbLink = await _repository.Context.Queryable<DbLinkEntity>().FirstAsync(it => it.Id.Equals("@(@Model.DbLinkId)"));
+        @:_sqlSugarClient = _dataBaseManager.ChangeDataBase(dbLink);
+        @:var isOk = await _sqlSugarClient.Insertable(entity).IgnoreColumns(ignoreNullColumn: true).ExecuteCommandAsync();
+}else{
+        @:var isOk = await _repository.Context.Insertable(entity).IgnoreColumns(ignoreNullColumn: true).ExecuteCommandAsync();
+}
+        @:if (!(isOk > 0)) throw Oops.Oh(ErrorCode.COM1000);
+    @:}
+break;
+@*编辑*@
+case "edit":
+@:
+    @:/// <summary>
+    @:/// 更新@(@Model.BusName).
+    @:/// </summary>
+    @:/// <param name="id">主键值.</param>
+    @:/// <param name="input">参数.</param>
+    @:/// <returns></returns>
+    @:[HttpPut("{id}")]
+    @:public async Task Update(string id, [FromBody] @(@Model.MainTable)UpInput input)
+    @:{
+        @:var entity = input.Adapt<@(@Model.MainTable)Entity>();
+@foreach(var column in Model.TableField)
+{
+@switch(column.qtKey)
+{
+case "modifyTime":
+        @:entity.@column.ColumnName = DateTime.Now;
+break;
+case "modifyUser":
+        @:entity.@column.ColumnName = _userManager.UserId;
+break;
+}
+}
+@*跨库*@
+@if(Model.DbLinkId != "0")
+{
+        @:var dbLink = await _repository.Context.Queryable<DbLinkEntity>().FirstAsync(it => it.Id.Equals("@(@Model.DbLinkId)"));
+        @:_sqlSugarClient = _dataBaseManager.ChangeDataBase(dbLink);
+        @:var isOk = await _sqlSugarClient.Updateable(entity).IgnoreColumns(ignoreAllNullColumns: true).ExecuteCommandAsync();
+}else{
+        @:var isOk = await _repository.Context.Updateable(entity).IgnoreColumns(ignoreAllNullColumns: true).ExecuteCommandAsync();
+}
+        @:if (!(isOk > 0)) throw Oops.Oh(ErrorCode.COM1001);
+    @:}
+break;
+@*删除*@
+case "remove":
+@:
+    @:/// <summary>
+    @:/// 删除@(@Model.BusName).
+    @:/// </summary>
+    @:/// <returns></returns>
+    @:[HttpDelete("{id}")]
+    @:public async Task Delete(string id)
+    @:{
+@*跨库*@
+@if(Model.DbLinkId != "0")
+{
+        @:var dbLink = await _repository.Context.Queryable<DbLinkEntity>().FirstAsync(it => it.Id.Equals("@(@Model.DbLinkId)"));
+        @:_sqlSugarClient = _dataBaseManager.ChangeDataBase(dbLink);
+        @:var isOk = await _sqlSugarClient.Deleteable<@(@Model.MainTable)Entity>().Where(it => it.@(@Model.PrimaryKey).Equals(id)).ExecuteCommandAsync();
+}else{
+        @:var isOk = await _repository.Context.Deleteable<@(@Model.MainTable)Entity>().Where(it => it.@(@Model.PrimaryKey).Equals(id)).ExecuteCommandAsync();
+}    
+        @:if (!(isOk > 0)) throw Oops.Oh(ErrorCode.COM1002);
+    @:}
+break;
+@*分页列表*@
+case "page":
+@:
+    @:/// <summary>
+    @:/// 获取@(@Model.BusName)列表.
+    @:/// </summary>
+    @:/// <param name="input">请求参数.</param>
+    @:/// <returns></returns>
+@if(@item.IsInterface)
+{
+    @:[HttpGet("")]
+    @:public async Task<dynamic> GetList([FromQuery] @(@Model.MainTable)ListQueryInput input)
+}
+else
+{
+    @:private async Task<dynamic> GetList([FromQuery] @(@Model.MainTable)ListQueryInput input)
+}
+    @:{
+@if(Model.UseDataPermission)
+{
+        @:var authorizeWhere = new List<IConditionalModel>();
+@:
+        @:// 数据权限过滤
+        @:if (_userManager.User.IsAdministrator == 0)
+        @:{
+            @:authorizeWhere = await _userManager.GetConditionAsync<@(@Model.MainTable)ListOutput>(input.menuId, "@(@Model.OriginalPrimaryKey)", _userManager.UserOrigin.Equals("pc") ? @(@Model.PcUseDataPermission) : @(@Model.AppUseDataPermission));
+        @:}
+@:
+}
+@foreach(var table in Model.TableField)
+{
+@*是查询条件*@
+@if(table.QueryWhether)
+{
+@switch(table.QueryType)
+{
+case 1:
+@switch(table.qtKey)
+{
+case "cascader":
+case "address":
+case "comSelect":
+case "currOrganize":
+        @:var @(@table.LowerColumnName) = input.@(@table.LowerColumnName)?.Split(',').ToList().Last();
+break;
+default:
+@if(table.IsMultiple)
+{
+        @:var @(@table.LowerColumnName) = input.@(@table.LowerColumnName)?.Split(',').ToList().Last();
+}
+break;
+}
+break;
+case 3:
+@switch(table.qtKey)
+{
+case "time":
+        @:List<string> query@(@table.ColumnName) =  input.@(@table.LowerColumnName)?.Split(',').ToObject<List<string>>();
+        @:var start@(@table.ColumnName) = query@(@table.ColumnName)?.First() ;
+        @:var end@(@table.ColumnName) = query@(@table.ColumnName)?.Last();
+break;
+case "numInput":
+case "calculate":
+        @:List<object> query@(@table.ColumnName) = input.@(@table.LowerColumnName)?.Split(',').ToObject<List<object>>();
+        @:var start@(@table.ColumnName) = query@(@table.ColumnName)?.First().ParseToDecimal() == 0 ? decimal.MinValue : query@(@table.ColumnName)?.First().ParseToDecimal();
+        @:var end@(@table.ColumnName) = query@(@table.ColumnName)?.Last().ParseToDecimal() == 0 ? decimal.MaxValue : query@(@table.ColumnName)?.Last().ParseToDecimal();
+break;
+default:
+        @:List<DateTime> query@(@table.ColumnName) = input.@(@table.LowerColumnName)?.Split(',').ToObject<List<DateTime>>();
+        @:DateTime? start@(@table.ColumnName) = query@(@table.ColumnName)?.First();
+        @:DateTime? end@(@table.ColumnName) = query@(@table.ColumnName)?.Last();
+break;
+}
+break;
+}
+}
+}
+@*跨库*@
+@if(Model.DbLinkId != "0")
+{
+        @:var dbLink = await _repository.Context.Queryable<DbLinkEntity>().FirstAsync(it => it.Id.Equals("@(@Model.DbLinkId)"));
+        @:_sqlSugarClient = _dataBaseManager.ChangeDataBase(dbLink);
+        @:var data = await _sqlSugarClient.Queryable<@(@Model.MainTable)Entity>()
+}else{
+        @:var data = await _repository.Context.Queryable<@(@Model.MainTable)Entity>()
+}
+@*循环查询条件*@
+@foreach(var table in Model.TableField)
+{
+@*是否查询条件*@
+@if(table.QueryWhether)
+{
+@*查询方式*@
+@switch(table.QueryType)
+{
+@*查询方式为等于*@
+case 1:
+@*多选控件*@
+@if(table.IsMultiple)
+{
+            @:.WhereIF(!string.IsNullOrEmpty(input.@(@table.LowerColumnName)), it => it.@(@table.ColumnName).Contains(@(@table.LowerColumnName)))
+}else{
+@switch(table.qtKey)
+{
+case "cascader":
+case "address":
+case "comSelect":
+case "currOrganize":
+            @:.WhereIF(!string.IsNullOrEmpty(input.@(@table.LowerColumnName)), it => it.@(@table.ColumnName).Contains(@(@table.LowerColumnName)))
+break;
+case "checkbox":
+            @:.WhereIF(!string.IsNullOrEmpty(input.@(@table.LowerColumnName)), it => it.@(@table.ColumnName).Contains(input.@(@table.LowerColumnName)))
+break;
+default:
+            @:.WhereIF(!string.IsNullOrEmpty(input.@(@table.LowerColumnName)), it => it.@(@table.ColumnName).Equals(input.@(@table.LowerColumnName)))
+break;
+}
+}
+break;
+@*查询类型为模糊查询*@
+case 2:
+            @:.WhereIF(!string.IsNullOrEmpty(input.@(@table.LowerColumnName)), it => it.@(@table.ColumnName).Contains(input.@(@table.LowerColumnName)))
+break;
+@*查询类型为范围查询*@
+case 3:
+@switch(table.qtKey)
+{
+case "time":
+case "numInput":
+case "calculate":
+            @:.WhereIF(query@(@table.ColumnName) != null, it => SqlFunc.Between(it.@(@table.ColumnName), start@(@table.ColumnName), end@(@table.ColumnName)))
+break;
+default:
+@if(table.IsDateTime)
+{
+            @:.WhereIF(query@(@table.ColumnName) != null, it => SqlFunc.Between(it.@(@table.ColumnName), start@(@table.ColumnName).ParseToDateTime("yyyy-MM-dd HH:mm:ss"), end@(@table.ColumnName).ParseToDateTime("yyyy-MM-dd HH:mm:ss")))
+}else{
+            @:.WhereIF(query@(@table.ColumnName) != null, it => SqlFunc.Between(it.@(@table.ColumnName), start@(@table.ColumnName).ParseToDateTime("yyyy-MM-dd 00:00:00"), end@(@table.ColumnName).ParseToDateTime("yyyy-MM-dd 23:59:59")))
+}
+break;
+}
+break;
+}
+}
+}
+@if(Model.SearchControlNum > 0)
+{
+@{var n = 0;}
+            @:.WhereIF(!string.IsNullOrEmpty(input.keyword), it =>
+@foreach (var table in Model.TableField){
+@if(table.QueryType == 2 || table.QueryType == 1)
+{
+                @:@(n==0?"":"|| ")it.@(@table.ColumnName).Contains(input.keyword)
+@{n++;}
+}
+}
+                @:)
+}
+@if(Model.UseDataPermission)
+{
+            @:.Where(authorizeWhere)
+}
+            @:.OrderByIF(string.IsNullOrEmpty(input.sidx), it => it.@(@Model.PrimaryKey))
+            @:.Select(it => new @(@Model.MainTable)ListOutput
+            @:{
+@*循环展示字段*@
+@foreach (var column in Model.TableField){
+@if (column.PrimaryKey){
+                @:@(@column.LowerColumnName) = it.@column.ColumnName,
+}else if(column.IsShow){
+@switch(column.qtKey)
+{
+case "switch":
+                @:@(@column.LowerColumnName) = SqlFunc.IIF(it.@(@column.ColumnName) == 0, "@(@column.InactiveTxt)", "@(@column.ActiveTxt)"),
+break;
+default:
+                @:@(@column.LowerColumnName) = it.@column.ColumnName,
+break;
+}
+}
+}
+            @:}).OrderByIF(!string.IsNullOrEmpty(input.sidx), it => input.sidx + " " + input.sort).ToPagedListAsync(input.currentPage, input.pageSize);
+        @:return PageResult<@(@Model.MainTable)ListOutput>.SqlSugarPageResult(data);
+    @:}
+break;
+case "noPage":
+@:
+    @:/// <summary>
+    @:/// 获取@(@Model.BusName)无分页列表.
+    @:/// </summary>
+    @:/// <param name="input">请求参数.</param>
+    @:/// <returns></returns>
+@if(@item.IsInterface)
+{
+    @:[HttpGet("")]
+    @:public async Task<dynamic> GetNoPagingList([FromQuery] @(@Model.MainTable)ListQueryInput input)
+}
+else
+{
+    @:private async Task<dynamic> GetNoPagingList([FromQuery] @(@Model.MainTable)ListQueryInput input)
+}
+    @:{
+@if(Model.UseDataPermission)
+{
+        @:var authorizeWhere = new List<IConditionalModel>();
+@:
+        @:// 数据权限过滤
+        @:if (_userManager.User.IsAdministrator == 0)
+        @:{
+            @:authorizeWhere = await _userManager.GetConditionAsync<@(@Model.MainTable)ListOutput>(input.menuId, "@(@Model.OriginalPrimaryKey)", _userManager.UserOrigin.Equals("pc") ? @(@Model.PcUseDataPermission) : @(@Model.AppUseDataPermission));
+        @:}
+@:
+}
+@foreach(var table in Model.TableField)
+{
+@*是查询条件*@
+@if(table.QueryWhether)
+{
+@switch(table.QueryType)
+{
+case 1:
+@switch(table.qtKey)
+{
+case "cascader":
+case "address":
+case "comSelect":
+case "currOrganize":
+        @:var @(@table.LowerColumnName) = input.@(@table.LowerColumnName)?.Split(',').ToList().Last();
+break;
+default:
+@if(table.IsMultiple)
+{
+        @:var @(@table.LowerColumnName) = input.@(@table.LowerColumnName)?.Split(',').ToList().Last();
+}
+break;
+}
+break;
+case 3:
+@switch(table.qtKey)
+{
+case "time":
+        @:List<string> query@(@table.ColumnName) =  input.@(@table.LowerColumnName)?.Split(',').ToObject<List<string>>();
+        @:var start@(@table.ColumnName) = query@(@table.ColumnName)?.First() ;
+        @:var end@(@table.ColumnName) = query@(@table.ColumnName)?.Last();
+break;
+case "numInput":
+case "calculate":
+        @:List<object> query@(@table.ColumnName) = input.@(@table.LowerColumnName)?.Split(',').ToObject<List<object>>();
+        @:var start@(@table.ColumnName) = query@(@table.ColumnName)?.First().ParseToDecimal() == 0 ? decimal.MinValue : query@(@table.ColumnName)?.First().ParseToDecimal();
+        @:var end@(@table.ColumnName) = query@(@table.ColumnName)?.Last().ParseToDecimal() == 0 ? decimal.MaxValue : query@(@table.ColumnName)?.Last().ParseToDecimal();
+break;
+default:
+        @:List<DateTime> query@(@table.ColumnName) = input.@(@table.LowerColumnName)?.Split(',').ToObject<List<DateTime>>();
+        @:DateTime? start@(@table.ColumnName) = query@(@table.ColumnName)?.First();
+        @:DateTime? end@(@table.ColumnName) = query@(@table.ColumnName)?.Last();
+break;
+}
+break;
+}
+}
+}
+@*跨库*@
+@if(Model.DbLinkId != "0")
+{
+        @:var dbLink = await _repository.Context.Queryable<DbLinkEntity>().FirstAsync(it => it.Id.Equals("@(@Model.DbLinkId)"));
+        @:_sqlSugarClient = _dataBaseManager.ChangeDataBase(dbLink);
+        @:return await _sqlSugarClient.Queryable<@(@Model.MainTable)Entity>()
+}else{
+        @:return await _repository.Context.Queryable<@(@Model.MainTable)Entity>()
+}
+@*循环查询条件*@
+@foreach(var table in Model.TableField)
+{
+@*是否查询条件*@
+@if(table.QueryWhether)
+{
+@*查询方式*@
+@switch(table.QueryType)
+{
+@*查询方式为等于*@
+case 1:
+@*多选控件*@
+@if(table.IsMultiple)
+{
+            @:.WhereIF(!string.IsNullOrEmpty(input.@(@table.LowerColumnName)), it => it.@(@table.ColumnName).Contains(@(@table.LowerColumnName)))
+}else{
+@switch(table.qtKey)
+{
+case "cascader":
+case "address":
+case "comSelect":
+case "currOrganize":
+            @:.WhereIF(!string.IsNullOrEmpty(input.@(@table.LowerColumnName)), it => it.@(@table.ColumnName).Contains(@(@table.LowerColumnName)))
+break;
+case "checkbox":
+            @:.WhereIF(!string.IsNullOrEmpty(input.@(@table.LowerColumnName)), it => it.@(@table.ColumnName).Contains(input.@(@table.LowerColumnName)))
+break;
+default:
+            @:.WhereIF(!string.IsNullOrEmpty(input.@(@table.LowerColumnName)), it => it.@(@table.ColumnName).Equals(input.@(@table.LowerColumnName)))
+break;
+}
+}
+break;
+@*查询类型为模糊查询*@
+case 2:
+            @:.WhereIF(!string.IsNullOrEmpty(input.@(@table.LowerColumnName)), it => it.@(@table.ColumnName).Contains(input.@(@table.LowerColumnName)))
+break;
+@*查询类型为范围查询*@
+case 3:
+@switch(table.qtKey)
+{
+case "time":
+case "numInput":
+case "calculate":
+            @:.WhereIF(query@(@table.ColumnName) != null, it => SqlFunc.Between(it.@(@table.ColumnName), start@(@table.ColumnName), end@(@table.ColumnName)))
+break;
+default:
+@if(table.IsDateTime)
+{
+            @:.WhereIF(query@(@table.ColumnName) != null, it => SqlFunc.Between(it.@(@table.ColumnName), start@(@table.ColumnName).ParseToDateTime("yyyy-MM-dd HH:mm:ss"), end@(@table.ColumnName).ParseToDateTime("yyyy-MM-dd HH:mm:ss")))
+}else{
+            @:.WhereIF(query@(@table.ColumnName) != null, it => SqlFunc.Between(it.@(@table.ColumnName), start@(@table.ColumnName).ParseToDateTime("yyyy-MM-dd 00:00:00"), end@(@table.ColumnName).ParseToDateTime("yyyy-MM-dd 23:59:59")))
+}
+break;
+}
+break;
+}
+}
+}
+@if(Model.SearchControlNum > 0)
+{
+@{var n = 0;}
+            @:.WhereIF(!string.IsNullOrEmpty(input.keyword), it =>
+@foreach (var table in Model.TableField){
+@if(table.QueryType == 2 || table.QueryType == 1)
+{
+                @:@(n==0?"":"|| ")it.@(@table.ColumnName).Contains(input.keyword)
+@{n++;}
+}
+}
+                @:)
+}
+@if(Model.UseDataPermission)
+{
+            @:.Where(authorizeWhere)
+}
+            @:.OrderByIF(string.IsNullOrEmpty(input.sidx), it => it.@(@Model.PrimaryKey))
+            @:.Select(it => new @(@Model.MainTable)ListOutput
+            @:{
+@*循环展示字段*@
+@foreach (var column in Model.TableField){
+@if (column.PrimaryKey){
+                @:@(@column.LowerColumnName) = it.@column.ColumnName,
+}else if(column.IsShow){
+@switch(column.qtKey)
+{
+case "switch":
+                @:@(@column.LowerColumnName) = SqlFunc.IIF(it.@(@column.ColumnName) == 0, "@(@column.InactiveTxt)", "@(@column.ActiveTxt)"),
+break;
+default:
+                @:@(@column.LowerColumnName) = it.@column.ColumnName,
+break;
+}
+}
+}
+            @:}).OrderByIF(!string.IsNullOrEmpty(input.sidx), it => input.sidx + " " + input.sort).ToListAsync();
+    @:}
+break;
+@*导出*@
+case "download":
+@:
+    @:/// <summary>
+    @:/// 导出@(@Model.BusName).
+    @:/// </summary>
+    @:/// <param name="input">请求参数.</param>
+    @:/// <returns></returns>
+    @:[HttpGet("Actions/Export")]
+    @:public async Task<dynamic> Export([FromQuery] @(@Model.MainTable)ListQueryInput input)
+    @:{
+        @:var exportData = new List<@(@Model.MainTable)ListOutput>();
+        @:if (input.dataType == 0)
+            @:exportData = Clay.Object(await GetList(input)).Solidify<PageResult<@(@Model.MainTable)ListOutput>>().list;
+        @:else
+            @:exportData = await GetNoPagingList(input);
+        @:List<ParamsModel> paramList = "[@(@Model.ExportField)]".ToList<ParamsModel>();
+        @:ExcelConfig excelconfig = new ExcelConfig();
+        @:excelconfig.FileName = "@(@Model.FullName).xls";
+        @:excelconfig.HeadFont = "微软雅黑";
+        @:excelconfig.HeadPoint = 10;
+        @:excelconfig.IsAllSizeColumn = true;
+        @:excelconfig.ColumnModel = new List<ExcelColumnModel>();
+        @:foreach (var item in input.selectKey.Split(',').ToList())
+        @:{
+            @:var isExist = paramList.Find(p => p.field == item);
+            @:if (isExist != null)
+                @:excelconfig.ColumnModel.Add(new ExcelColumnModel() { Column = isExist.field, ExcelColumn = isExist.value });
+        @:}
+@:
+        @:var addPath = FileVariable.TemporaryFilePath + excelconfig.FileName;
+        @:ExcelExportHelper<@(@Model.MainTable)ListOutput>.Export(exportData, excelconfig, addPath);
+        @:var fileName = _userManager.UserId + "|" + addPath + "|xls";
+        @:return new
+        @:{
+            @:name = excelconfig.FileName,
+            @:url = "/api/File/Download?encryption=" + DESCEncryption.Encrypt(fileName, "QT")
+        @:};
+    @:}
+break;
+@*批量删除*@
+case "batchRemove":
+@:
+    @:/// <summary>
+    @:/// 批量删除@(@Model.BusName).
+    @:/// </summary>
+    @:/// <param name="ids">主键数组.</param>
+    @:/// <returns></returns>
+    @:[HttpPost("batchRemove")]
+    @:public async Task BatchRemove([FromBody] List<string> ids)
+    @:{
+@*跨库*@
+@if(Model.DbLinkId != "0")
+{
+        @:var dbLink = await _repository.Context.Queryable<DbLinkEntity>().FirstAsync(it => it.Id.Equals("@(@Model.DbLinkId)"));
+        @:_sqlSugarClient = _dataBaseManager.ChangeDataBase(dbLink);
+        @:var entitys = await _sqlSugarClient.Queryable<@(@Model.MainTable)Entity>().In(it => it.@(@Model.PrimaryKey), ids).ToListAsync();
+}else{
+        @:var entitys = await _repository.Context.Queryable<@(@Model.MainTable)Entity>().In(it => it.@(@Model.PrimaryKey), ids).ToListAsync();
+}
+        @:if (entitys.Count > 0)
+        @:{
+            @:try
+            @:{
+                @:// 开启事务
+                @:_db.BeginTran();
+@:
+                @:// 批量删除@(@Model.BusName)
+@if(Model.DbLinkId != "0")
+{
+                @:await _sqlSugarClient.Deleteable<@(@Model.MainTable)Entity>().In(it => it.@(@Model.PrimaryKey),ids).ExecuteCommandAsync();
+}
+else
+{
+                @:await _repository.Context.Deleteable<@(@Model.MainTable)Entity>().In(it => it.@(@Model.PrimaryKey),ids).ExecuteCommandAsync();
+}
+@:
+                @:// 关闭事务
+                @:_db.CommitTran();
+            @:}
+            @:catch (Exception)
+            @:{
+                @:// 回滚事务
+                @:_db.RollbackTran();
+@:
+                @:throw Oops.Oh(ErrorCode.COM1002);
+            @:}
+        @:}
+    @:}
+break;
+}
+}
+}

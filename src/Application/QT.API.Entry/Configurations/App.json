@@ -1,0 +1,32 @@
+{
+  "QT_App": {
+    //程序模块名称
+    "CodeAreasName": [ "SubDev", "Erp", "Extend.Erp", "Emp", "JZRC" ],
+    //系统文件路径
+    "SystemPath": "E:\\wwwroot\\Resources",
+    //微信公众号允许上传文件类型
+    "MPUploadFileType": [ "bmp", "png", "jpeg", "jpg", "gif", "mp3", "wma", "wav", "amr", "mp4" ],
+    //微信允许上传文件类型
+    "WeChatUploadFileType": [ "jpg", "png", "doc", "docx", "ppt", "pptx", "xls", "xlsx", "pdf", "txt", "rar", "zip", "csv", "amr", "mp4" ],
+    //允许图片类型
+    "AllowUploadImageType": [ "jpg", "gif", "png", "bmp", "jpeg", "tiff", "psd", "swf", "svg", "pcx", "dxf", "wmf", "emf", "lic", "eps", "tga" ],
+    //允许上传文件类型
+    "AllowUploadFileType": [ "jpg", "mp3", "gif", "png", "bmp", "jpeg", "doc", "docx", "ppt", "pptx", "xls", "xlsx", "pdf", "txt", "rar", "zip", "csv", "mp4" ],
+    "Domain": "http://aa.tpddns.cn:7772",
+    "PreviewType": "yozo", //永中文件预览接口方式
+    "YOZO": {
+      "domain": "http://www.95033.cn",
+      "domainKey": "",
+      "UploadAPI": "http://dmc.yozocloud.cn/api/file/http?fileUrl={0}&appId={1}&sign={2}", //上传接口
+      "DownloadAPI": "http://eic.yozocloud.cn/api/view/file?fileVersionId={0}&appId={1}&sign={2}", //预览接口
+      "AppId": "yozovNcyqNjG6110", //应用Id
+      "AppKey": "b3ac1d09f593c8871a7676a7f6d9" //签名
+    },
+    //================== 系统错误邮件报告反馈相关 ============================== -->
+    //软件的错误报告
+    "ErrorReport": false,
+    //软件的错误报告发给谁
+    "ErrorReportTo": "admin@95033.com",
+    "IotApi": "https://iot.95033.cn/api/"
+  }
+}

@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\common\QT.Common.Core\QT.Common.Core.csproj" />
+    <ProjectReference Include="..\..\engine\QT.VisualDev.Engine\QT.VisualDev.Engine.csproj" />
+    <ProjectReference Include="..\..\..\message\QT.Message.Interfaces\QT.Message.Interfaces.csproj" />
+    <ProjectReference Include="..\..\..\system\QT.Systems.Interfaces\QT.Systems.Interfaces.csproj" />
+    <ProjectReference Include="..\..\workflow\QT.WorkFlow.Interfaces\QT.WorkFlow.Interfaces.csproj" />
+    <ProjectReference Include="..\..\workflow\QT.WorkFlow\QT.WorkFlow.csproj" />
+    <ProjectReference Include="..\QT.VisualDev.Interfaces\QT.VisualDev.Interfaces.csproj" />
+  </ItemGroup>
+
+</Project>

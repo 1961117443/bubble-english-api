@@ -1,0 +1,188 @@
+﻿@*是否需要上传文件引用*@
+@if(Model.IsUploading)
+{
+@:using QT.Common.Models;
+}
+using QT.Common.Security;
+using QT.@(@Model.NameSpace).Entitys.Dto.@(@Model.MainTable);
+using QT.@(@Model.NameSpace).Entitys.Dto.@(@Model.AuxiliaryTable);
+using Mapster;
+
+namespace QT.@(@Model.NameSpace).Entitys.Mapper.@Model.AuxiliaryTable;
+
+public class Mapper : IRegister
+{
+	public void Register(TypeAdapterConfig config)
+	{
+@*判断是否需要映射*@
+@if(Model.IsMapper)
+{
+@*判断WebType 1-纯表单,2-常规表单,3-流程列表单*@
+@if(Model.WebType == 1)
+{
+@{GetCrInputToEntity(); }
+}
+else if(Model.WebType == 2)
+{
+@{GetCrInputToEntity(); }
+@{GetEntityToInfoOutput();}
+}
+else if(Model.WebType == 3 || Model.Type == 3)
+{
+@{GetCrInputToEntity(); }
+@{GetEntityToInfoOutput();}
+@{GetEntityToCrInput();}
+}
+}
+	}
+}
+@{
+	@*新增输入转实体*@
+	void GetCrInputToEntity()
+	{	
+		@:config.ForType<@(@Model.MainTable)CrInput, @(@Model.AuxiliaryTable)Entity>()
+@*循环表字段*@
+@foreach (var column in Model.TableField)
+{
+@*判断Key不为空*@
+if (@column.qtKey != null)
+{
+switch(column.qtKey)
+{
+@*下拉框控件*@
+case "select":
+case "userSelect":
+case "treeSelect":
+case "depSelect":
+case "posSelect":
+@*是否为多选*@
+@if(column.IsMultiple)
+{
+			@:.Map(dest => dest.@(@column.ColumnName), src => src.qt_@(@column.TableName)_qt_@(@column.LowerColumnName).ToJsonString())
+}
+else
+{
+			@:.Map(dest => dest.@(@column.ColumnName), src => src.qt_@(@column.TableName)_qt_@(@column.LowerColumnName))
+}
+break;
+@*复选框、级联、省市区、图片上传、文件上传*@
+case "checkbox":
+case "cascader":
+case "comSelect":
+case "address":
+case "uploadImg":
+case "uploadFz":
+			@:.Map(dest => dest.@(@column.ColumnName), src => src.qt_@(@column.TableName)_qt_@(@column.LowerColumnName).ToJsonString())
+break;
+default:
+			@:.Map(dest => dest.@(@column.ColumnName), src => src.qt_@(@column.TableName)_qt_@(@column.LowerColumnName))
+break;
+}
+}
+}
+		@:;
+	}
+}
+@{
+	@*实体转详情输出*@
+	void GetEntityToInfoOutput()
+	{
+		@:config.ForType<@(@Model.AuxiliaryTable)Entity, @(@Model.AuxiliaryTable)InfoOutput>()
+@foreach (var column in Model.TableField)
+{
+if (@column.qtKey != null)
+{
+switch(column.qtKey)
+{
+case "select":
+case "userSelect":
+case "treeSelect":
+case "depSelect":
+case "posSelect":
+@if(column.IsMultiple)
+{
+			@:.Map(dest => dest.qt_@(@column.TableName)_qt_@(@column.LowerColumnName), src => src.@(@column.ColumnName).ToObject<List<string>>())
+}else
+{
+			@:.Map(dest => dest.qt_@(@column.TableName)_qt_@(@column.LowerColumnName), src => src.@(@column.ColumnName))
+}
+break;
+case "cascader":
+case "comSelect":
+case "address":
+@if(column.IsMultiple)
+{
+			@:.Map(dest => dest.qt_@(@column.TableName)_qt_@(@column.LowerColumnName), src => src.@(@column.ColumnName).ToObject<List<List<string>>>())
+}else
+{
+			@:.Map(dest => dest.qt_@(@column.TableName)_qt_@(@column.LowerColumnName), src => src.@(@column.ColumnName).ToObject<List<string>>())
+}
+break;
+case "checkbox":
+			@:.Map(dest => dest.qt_@(@column.TableName)_qt_@(@column.LowerColumnName), src => src.@(@column.ColumnName).ToObject<List<string>>())
+break;
+case "uploadImg":
+case "uploadFz":
+			@:.Map(dest => dest.qt_@(@column.TableName)_qt_@(@column.LowerColumnName), src => src.@(@column.ColumnName).ToObject<List<FileControlsModel>>())
+break;
+default:
+			@:.Map(dest => dest.qt_@(@column.TableName)_qt_@(@column.LowerColumnName), src => src.@(@column.ColumnName))
+break;
+}
+}
+}
+		@:;
+	}
+}
+@{
+	@*实体转创建输入*@
+	void GetEntityToCrInput()
+	{
+		@:config.ForType<@(@Model.AuxiliaryTable)Entity, @(@Model.MainTable)UpInput>()
+@foreach (var column in Model.TableField)
+{
+if (@column.qtKey != null)
+{
+switch(column.qtKey)
+{
+case "select":
+case "userSelect":
+case "treeSelect":
+case "depSelect":
+case "posSelect":
+@if(column.IsMultiple)
+{
+			@:.Map(dest => dest.qt_@(@column.TableName)_qt_@(@column.LowerColumnName), src => src.@(@column.ColumnName).ToObject<List<string>>())
+}
+else
+{
+			@:.Map(dest => dest.qt_@(@column.TableName)_qt_@(@column.LowerColumnName), src => src.@(@column.ColumnName))
+}
+break;
+case "cascader":
+case "address":
+case "comSelect":
+@if(column.IsMultiple)
+{
+			@:.Map(dest => dest.qt_@(@column.TableName)_qt_@(@column.LowerColumnName), src => src.@(@column.ColumnName).ToObject<List<List<string>>>())
+}
+else{
+			@:.Map(dest => dest.qt_@(@column.TableName)_qt_@(@column.LowerColumnName), src => src.@(@column.ColumnName).ToObject<List<string>>())
+}
+break;
+case "checkbox":
+			@:.Map(dest => dest.qt_@(@column.TableName)_qt_@(@column.LowerColumnName), src => src.@(@column.ColumnName).ToObject<List<string>>())
+break;
+case "uploadImg":
+case "uploadFz":
+			@:.Map(dest => dest.qt_@(@column.TableName)_qt_@(@column.LowerColumnName), src => src.@(@column.ColumnName).ToObject<List<FileControlsModel>>())
+break;
+default:
+			@:.Map(dest => dest.qt_@(@column.TableName)_qt_@(@column.LowerColumnName), src => src.@(@column.ColumnName))
+break;
+}
+}
+}
+		@:;
+	}
+}

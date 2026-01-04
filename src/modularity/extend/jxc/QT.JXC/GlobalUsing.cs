@@ -1,0 +1,30 @@
+﻿global using Microsoft.AspNetCore.Http;
+global using Microsoft.AspNetCore.Mvc;
+global using QT.Common.Filter;
+global using QT.Common.Helper;
+global using QT.Common.Models.NPOI;
+global using QT.Common.Security;
+global using QT.DataEncryption;
+global using QT.DynamicApiController;
+global using QT.Extras.DatabaseAccessor.SqlSugar;
+global using QT.FriendlyException;
+global using SqlSugar;
+global using System;
+global using System.Collections.Generic;
+global using System.Linq;
+global using System.Text;
+global using System.Threading.Tasks;
+
+global using QT.Common.Configuration;
+global using QT.Common.Core.Manager;
+global using QT.Common.Core.Security;
+global using QT.Common.Enum;
+global using QT.Common.Const;
+
+global using QT.JXC.Entitys.Entity;
+global using QT.JXC.Entitys.Views;
+global using QT.JXC.Entitys.Enums;
+global using QT.JXC.Entitys.Dto;
+global using QT.JXC.Entitys.Dto.Erp;
+global using QT.JXC.Entitys.Entity.ERP;
+global using QT.JXC.Interfaces;

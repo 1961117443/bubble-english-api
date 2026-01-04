@@ -1,0 +1,52 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+		<!-- 主项目输出路径，可根据自己项目结构修改 -->
+		<PropertyGroup>
+				<MainProjectOutputDir>$(SolutionDir)Application\QT.API.Entry\bin\$(Configuration)\$(TargetFramework)\</MainProjectOutputDir>
+		</PropertyGroup>
+
+		<!-- 构建完成后复制dll到主项目的 plugins 文件夹 -->
+		<Target Name="CopyToMainPlugins" AfterTargets="Build" Condition="'$(Configuration)' == 'Debug'">
+
+				<!-- 插件输出路径 -->
+				<PropertyGroup>
+						<PluginOutputDir>$(MainProjectOutputDir)plugins\</PluginOutputDir>
+				</PropertyGroup>
+
+				<!-- 打印日志 -->
+				<Message Text="插件输出路径: $(PluginOutputDir)" Importance="High" />
+
+				<!-- 确保目标文件夹存在 -->
+				<MakeDir Directories="$(PluginOutputDir)" Condition="!Exists('$(PluginOutputDir)')" />
+
+				<!-- 当前插件项目编译后的 DLL -->
+				<ItemGroup>
+						<PluginDlls Include="$(OutputPath)*.dll" />
+				</ItemGroup>
+
+				<!-- 主项目中的 DLL，用于排重 -->
+				<ItemGroup>
+						<MainDlls Include="$(MainProjectOutputDir)*.dll" />
+				</ItemGroup>
+
+				<!-- 标记同名文件 -->
+				<ItemGroup>
+						<PluginDllsToCopy Include="@(PluginDlls)">
+								<_ExistsInMain Condition=" '%(Filename)' == '@(MainDlls->'%(Filename)')' ">true</_ExistsInMain>
+						</PluginDllsToCopy>
+				</ItemGroup>
+
+				<!-- 过滤掉与主项目重名的DLL -->
+				<ItemGroup>
+						<PluginDllsToCopy Remove="@(PluginDllsToCopy)" Condition=" '%(PluginDllsToCopy._ExistsInMain)' == 'true' " />
+				</ItemGroup>
+
+				<Message Text="最终要复制的插件DLL: @(PluginDllsToCopy)" Importance="High" />
+
+				<!-- 执行复制 -->
+				<Copy SourceFiles="@(PluginDllsToCopy)"
+							DestinationFolder="$(PluginOutputDir)"
+							SkipUnchangedFiles="true" />
+		</Target>
+
+</Project>

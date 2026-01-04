@@ -1,0 +1,40 @@
+﻿using QT.Application.Entitys.Dto.FreshDelivery.CwSupplierInvoiceDetail;
+
+namespace QT.Application.Entitys.Dto.FreshDelivery.CwSupplierInvoice;
+
+/// <summary>
+/// 付款单修改输入参数.
+/// </summary>
+public class CwSupplierInvoiceCrInput
+{
+    /// <summary>
+    /// 订单编号.
+    /// </summary>
+    public string no { get; set; }
+
+    /// <summary>
+    /// 供应商id.
+    /// </summary>
+    public string sid { get; set; }
+
+    /// <summary>
+    /// 付款日期.
+    /// </summary>
+    public DateTime? paymentDate { get; set; }
+
+    /// <summary>
+    /// 付款方式.
+    /// </summary>
+    public string paymentMethod { get; set; }
+
+    /// <summary>
+    /// 备注.
+    /// </summary>
+    public string remark { get; set; }
+
+    /// <summary>
+    /// 付款单明细.
+    /// </summary>
+    public List<CwSupplierInvoiceDetailCrInput> cwSupplierInvoiceDetailList { get; set; }
+
+}

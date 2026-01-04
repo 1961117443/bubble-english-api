@@ -1,0 +1,16 @@
+﻿namespace QT.@(@Model.NameSpace).Interfaces;
+
+/// <summary>
+/// 业务抽象：@(@Model.BusName).
+/// </summary>
+public interface I@(@Model.ClassName)Service
+{
+@if(Model.Type == 3)
+{
+    @:/// <summary>
+    @:/// 工作流表单操作.
+    @:/// </summary>
+    @:/// <returns></returns>
+    @:Task Save(string id, object obj, int type);
+}
+}

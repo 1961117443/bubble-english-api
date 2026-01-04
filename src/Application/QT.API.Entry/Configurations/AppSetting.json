@@ -1,0 +1,6 @@
+{
+  "AppSettings": {
+    "InjectMiniProfiler": true,
+    "ExternalAssemblies": [ "plugins/QT.JZRC.dll", "plugins/QT.JZRC.Entitys.dll", "plugins/QT.JZRC.Interfaces.dll" ]
+  }
+}

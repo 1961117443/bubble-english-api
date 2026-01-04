@@ -1,0 +1,6 @@
+{
+  "Cache": {
+    "CacheType": "MemoryCache", //MemoryCache
+    //"RedisConnectionString": "127.0.0.1:6379,defaultDatabase=15"
+  }
+}

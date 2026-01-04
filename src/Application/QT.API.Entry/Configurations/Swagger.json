@@ -1,0 +1,20 @@
+{
+  "SpecificationDocumentSettings": {
+    "EnableAllGroups": true,
+    "DocumentTitle": ".Net Core",
+    "DocExpansionState": "None",
+    "GroupOpenApiInfos": [
+      {
+        "Group": "Default",
+        "Title": "API接口文档",
+        "Description": "",
+        "Version": "1.0"
+      }
+    ],
+    "LoginInfo": {
+      "Enabled": false,
+      "CheckUrl": "https://localhost:5000/Home/CheckUrl",
+      "SubmitUrl": "https://localhost:5000/Home/SubmitUrl"
+    }
+  }
+}

@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\visualdev\QT.VisualDev.Entitys\QT.VisualDev.Entitys.csproj" />
+    <ProjectReference Include="..\QT.WorkFlow.Entitys\QT.WorkFlow.Entitys.csproj" />
+  </ItemGroup>
+
+</Project>

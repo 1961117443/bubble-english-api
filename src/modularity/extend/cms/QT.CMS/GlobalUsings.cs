@@ -1,0 +1,17 @@
+﻿global using Mapster;
+global using Microsoft.AspNetCore.Authorization;
+global using Microsoft.AspNetCore.JsonPatch;
+global using Microsoft.AspNetCore.Mvc;
+global using QT.CMS.Entitys;
+global using QT.CMS.Entitys.Dto.Base;
+global using QT.CMS.Entitys.Dto.Parameter;
+global using QT.CMS.Entitys.Dto.Shop;
+global using QT.Common.Core.Emum;
+global using QT.Common.Core.Filter;
+global using QT.Common.Core.Filters;
+global using QT.Common.Core.Manager;
+global using QT.Common.Extension;
+global using QT.Common.Filter;
+global using QT.FriendlyException;
+global using SqlSugar;
+global using QT.CMS.Interfaces;

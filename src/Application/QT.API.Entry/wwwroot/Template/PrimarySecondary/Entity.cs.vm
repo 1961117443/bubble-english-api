@@ -1,0 +1,29 @@
+﻿using QT.Common.Const;
+using SqlSugar;
+
+namespace QT.@(@Model.NameSpace).Entitys;
+
+/// <summary>
+/// @(@Model.BusName)实体.
+/// </summary>
+[SugarTable("@(@Model.OriginalMainTableName)")]
+[Tenant(ClaimConst.TENANTID)]
+public class @(@Model.MainTable)Entity
+{
+@foreach (var column in Model.TableField)
+{
+@if(!column.IsAuxiliary)
+{
+    @:/// <summary>
+    @:/// @column.ColumnComment.
+    @:/// </summary>
+if(@column.PrimaryKey){       
+    @:[SugarColumn(ColumnName = "@(@column.OriginalColumnName)", IsPrimaryKey = true)]
+}else{
+    @:[SugarColumn(ColumnName = "@(@column.OriginalColumnName)")]
+}
+    @:public @column.NetType @column.ColumnName { get; set; }
+@:
+}
+}
+}

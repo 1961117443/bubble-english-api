@@ -1,0 +1,43 @@
+﻿
+namespace QT.Application.Entitys.Dto.FreshDelivery.ErpProducttype;
+
+/// <summary>
+/// 商品分类管理输出参数.
+/// </summary>
+public class ErpProducttypeInfoOutput
+{
+    /// <summary>
+    /// 主键.
+    /// </summary>
+    public string id { get; set; }
+
+    /// <summary>
+    /// 父级ID.
+    /// </summary>
+    public string fid { get; set; }
+
+    /// <summary>
+    /// 名称.
+    /// </summary>
+    public string name { get; set; }
+
+    /// <summary>
+    /// 分类编号.
+    /// </summary>
+    public string code { get; set; }
+
+    /// <summary>
+    /// 拼音首字母.
+    /// </summary>
+    public string firstChar { get; set; }
+
+    /// <summary>
+    /// 分类说明.
+    /// </summary>
+    public string remark { get; set; }
+
+    /// <summary>
+    /// 序号：排序规则数字越大越靠前。
+    /// </summary>
+    public int order { get; set; }
+}

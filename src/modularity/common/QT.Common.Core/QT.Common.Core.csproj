@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+		<DocumentationFile>bin\Debug\$(AssemblyName).xml</DocumentationFile>
+	</PropertyGroup>
+
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+		<DocumentationFile>bin\Release\$(AssemblyName).xml</DocumentationFile>
+	</PropertyGroup>
+	
+	<ItemGroup>
+		<ProjectReference Include="..\..\..\framework\QT.Extras.Authentication.JwtBearer\QT.Extras.Authentication.JwtBearer.csproj" />
+		<ProjectReference Include="..\..\..\framework\QT.Extras.Logging.Serilog\QT.Extras.Logging.Serilog.csproj" />
+		<ProjectReference Include="..\..\extend\visualdev\QT.VisualDev.Entitys\QT.VisualDev.Entitys.csproj" />
+	</ItemGroup>
+
+</Project>

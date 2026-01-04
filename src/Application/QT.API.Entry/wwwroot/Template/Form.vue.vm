@@ -1,0 +1,971 @@
+<template>
+@switch(Model.PopupType)
+{
+case "fullScreen":
+@if(Model.WebType != 1)
+{
+	@:<transition name="el-zoom-in-center">
+}else if(Model.WebType == 1)
+{
+	@:<transition name="QT-common-layout">
+}
+		@:<div class="QT-preview-main" v-loading.body="loading">
+			@:<div class="QT-common-page-header">
+@if(Model.WebType != 1)
+{
+				@:<el-page-header @@back="goBack" :content="readonly?'详情': !dataForm.id ? '新建' : '编辑'"/>
+}
+				@:<div class="options">
+					@:<el-button v-if="!readonly" type="primary" @@click="dataFormSubmit()" :loading="btnLoading">@(@Model.ConfirmButtonText)</el-button>
+					@:<el-button @@click="goBack">@(@Model.CancelButtonText)</el-button>
+				@:</div>
+			@:</div>
+			@:<div :style="{margin: '0 auto',width:'@(@Model.FullScreenWidth)'}">
+				@:<el-row :gutter="15" class="@(@Model.FormStyle) main">
+@{ GenerateFormControls(); }
+				@:</el-row>
+			@:</div>
+		@:</div>
+	@:</transition>
+	break;
+case "general":
+	@:<el-dialog :title="!dataForm.id ? '新建' : '编辑'" :close-on-click-modal="false" :visible.sync="visible" class="QT-dialog QT-dialog_center" lock-scroll width="@(@Model.GeneralWidth)">
+		@:<el-row :gutter="15" class="@(@Model.FormStyle)" >
+@{ GenerateFormControls(); }
+		@:</el-row>
+		@:<span slot="footer" class="dialog-footer">
+			@:<el-button @@click="visible=false">@(@Model.CancelButtonText)</el-button>
+			@:<el-button type="primary" @@click="dataFormSubmit()" :loading="btnLoading">@(@Model.ConfirmButtonText)</el-button>
+		@:</span>
+	@:</el-dialog>
+	break;
+case "drawer":
+	@:<el-drawer :title="!dataForm.id ? '新建' : '编辑'" :visible.sync="visible" :wrapperClosable="false" size="@(@Model.DrawerWidth)" append-to-body class="QT-common-drawer">
+		@:<div class="QT-flex-main">
+			@:<div class="dynamicForm">
+@{ GenerateFormControls(); }
+			@:</div>
+			@:<div class="drawer-footer">
+				@:<el-button @@click="visible = false">@(@Model.CancelButtonText)</el-button>
+				@:<el-button type="primary" @@click="dataFormSubmit()" :loading="btnLoading">@(@Model.ConfirmButtonText)</el-button>
+			@:</div>
+		@:</div>
+     @:</el-drawer>
+	break;
+}
+</template>
+<script>
+	import request from '@@/utils/request'
+	import { getDictionaryDataSelector } from '@@/api/systemData/dictionary'
+	import { getDataInterfaceRes } from '@@/api/systemData/dataInterface'
+	export default {
+		components: {},
+		props: [],
+		data() {
+			return {
+				btnLoading:false,
+				loading: false,
+				visible: false,
+				readonly: false,
+				dataForm: {
+					id:'',
+@foreach(var children in Model.FormList)
+{
+@switch(children.qtKey)
+{
+case "checkbox":
+case "cascader":
+case "uploadImg":
+case "uploadFz":
+case "address":
+case "comSelect":
+@if(children.DefaultValue == null || children.DefaultValue.ToString() == "")
+{
+					@:@(@children.LowerName):[],
+}else{
+					@:@(@children.LowerName):@(@children.DefaultValue),
+}
+break;
+case "select":
+case "userSelect":
+case "treeSelect":
+case "depSelect":
+case "posSelect":
+@if(children.Multiple)
+{
+if(@children.DefaultValue == null || @children.DefaultValue.ToString() == "")
+{
+					@:@(@children.LowerName):[],
+}else{
+					@:@(@children.LowerName):@(@children.DefaultValue),
+}
+}else{
+if(@children.DefaultValue == null || @children.DefaultValue.ToString() == "")
+{
+					@:@(@children.LowerName):undefined,
+}else{
+					@:@(@children.LowerName):"@(@children.DefaultValue)",
+}
+}
+break;
+case "numInput":
+case "date":
+case "rate":
+case "slider":
+if(@children.DefaultValue == null || @children.DefaultValue.ToString() == "")
+{
+					@:@(@children.LowerName):undefined,
+}else{
+					@:@(@children.LowerName):@(@children.DefaultValue),
+}
+break;
+case "switch":
+					@:@(@children.LowerName):@(@children.DefaultValue ? "1" : "0"),
+break;
+case "table":
+					@:@(@children.LowerName)List:[],
+break;
+default:
+if(@children.DefaultValue == null || @children.DefaultValue.ToString() == "")
+{
+					@:@(@children.LowerName):undefined,
+}else{
+					@:@(@children.LowerName):"@(@children.DefaultValue)",
+}
+break;
+}
+}
+				},
+				rules: {
+@foreach(var item in Model.FormList)
+{
+@switch(item.qtKey)
+{
+case "table":
+break;
+default:
+@if(item.Required || (item.RegList!=null && item.RegList.Count > 0))
+{
+					@:@(@item.LowerName):[
+@if(item.Required)
+{
+						@:{
+							@:required:true,
+							@:message:'请输入@(@item.Placeholder)',
+@if(item.Trigger.Contains("["))
+{
+							@:trigger:@(@item.Trigger)
+}
+else
+{
+							@:trigger:'@(@item.Trigger)'
+}
+
+						@:},
+}
+@if(item.RegList!=null && item.RegList.Count > 0)
+{
+@foreach(var items in item.RegList)
+{
+						@:{
+							@:pattern:@(@items.pattern),
+							@:message:'@(@items.message)',
+if(item.Trigger.Contains("["))
+{
+							@:trigger:@(@item.Trigger)
+}
+else
+{
+							@:trigger:'@(@item.Trigger)'
+}
+						@:},
+}
+}
+					@:],
+}
+break;
+}
+}
+				},
+@foreach(var item in Model.OptionsList)
+{
+@if(item.qtKey == "collapse")
+{
+				@:@(@item.Name):@(@item.Content),
+}
+else if(item.qtKey == "tab")
+{
+				@:@(@item.Name):"@(@item.Content)",
+}
+else{
+@if(item.IsProps)
+{
+				@:@(@item.LowerName)Props:@(item.Props),
+}
+				@:@item.Content
+}
+}
+			}
+		},
+		computed: {},
+        watch: {},
+        created() {
+@foreach(var item in @Model.OptionsList)
+{
+@if(!item.IsStatic && (item.IsChildren || item.IsIndex))
+{
+			@:this.get@(@item.LowerName)Options();
+}
+}
+@if(Model.WebType == 1)
+{
+			@:this.init();
+}
+		},
+		mounted() {
+        },
+		methods: {
+@foreach(var item in Model.FormList)
+{
+@switch(item.qtKey)
+{
+case "table":
+@if(item.Required)
+{
+			@:@(@item.LowerName)Exist(){
+				@:let isOk = true;
+				@:for (let i = 0; i < this.dataForm.@(@item.LowerName)List.length; i++) {
+					@:const e = this.dataForm.@(@item.LowerName)List[i];
+@foreach(var children in item.ChildrenList)
+{
+@if(children.Required)
+{
+@switch(children.qtKey)
+{
+case "checkbox":
+case "cascader":
+case "uploadImg":
+case "uploadFz":
+case "address":
+case "comSelect":
+					@:if(!e.@(@children.LowerName).length) {
+						@:this.$message({
+							@:message: '@(@children.Placeholder)不能为空',
+							@:type: 'error',
+							@:duration: 1000
+						@:});
+						@:isOk = false
+						@:break
+					@:}
+break;
+case "select":
+case "userSelect":
+case "treeSelect":
+case "depSelect":
+case "posSelect":
+@if(children.Multiple)
+{
+					@:if(!e.@(@children.LowerName).length) {
+						@:this.$message({
+							@:message: '@(@children.Placeholder)不能为空',
+							@:type: 'error',
+							@:duration: 1000
+						@:});
+						@:isOk = false
+						@:break
+					@:}
+}else{
+					@:if(!e.@(@children.LowerName)) {
+						@:this.$message({
+							@:message: '@(@children.Placeholder)不能为空',
+							@:type: 'error',
+							@:duration: 1000
+						@:});
+						@:isOk = false
+						@:break
+					@:}
+}
+break;
+case "switch":
+break;
+default:
+					@:if(!e.@(@children.LowerName)) {
+						@:this.$message({
+							@:message: '@(@children.Placeholder)不能为空',
+							@:type: 'error',
+							@:duration: 1000
+						@:});
+						@:isOk = false
+						@:break
+					@:}
+break;
+}
+}
+}
+				@:}
+				@:return isOk;
+			@:},
+}
+break;
+}
+}
+@foreach(var item in @Model.OptionsList)
+{
+@if(!item.IsStatic && item.DictionaryType !=null)
+{
+			@:get@(@item.LowerName)Options(){
+switch(@item.DataType)
+{
+case "dictionary":
+				@:getDictionaryDataSelector('@(@item.DictionaryType)').then(res => {
+					@:this.@(@item.LowerName)Options = res.data.list
+	break;
+case "dynamic":
+				@:getDataInterfaceRes('@(@item.DictionaryType)').then(res => {
+					@:let data = res.data.data
+					@:this.@(@item.LowerName)Options = data
+	break;
+}
+				@:});
+			@:},
+}
+}
+			goBack() {
+                this.$emit('refresh')
+            },
+			init(id,readonly) {
+				this.dataForm.id = id || 0;
+				this.readonly = readonly || false;
+                this.visible = true;
+				this.$nextTick(() => {
+					this.$refs['@(@Model.FormRef)'].resetFields();
+@foreach(var children in Model.FormList)
+{
+@switch(children.qtKey)
+{
+case "table":
+					@:this.dataForm.@(@children.LowerName)List = [];
+break;
+}
+}
+					if (this.dataForm.id) {
+						this.loading = true
+						request({
+							url: '/api/@(@Model.NameSpace)/@(@Model.ClassName)/' + this.dataForm.id,
+							method: 'get'
+						}).then(res =>{
+							this.dataForm = res.data;
+@foreach(var item in Model.FormList)
+{
+@switch(item.qtKey)
+{
+case "checkbox":
+case "cascader":
+case "uploadImg":
+case "uploadFz":
+case "address":
+case "comSelect":
+							@:if(!this.dataForm.@(@item.LowerName))this.dataForm.@(@item.LowerName)=[];
+break;
+}
+}
+						}).finally(_=> this.loading = false);
+					}
+				});
+				this.$store.commit('generator/UPDATE_RELATION_DATA', {})
+			},
+			dataFormSubmit() {
+				this.$refs['@(@Model.FormRef)'].validate((valid) => {
+                    if (valid) {
+@foreach(var item in Model.FormList)
+{
+@switch(item.qtKey)
+{
+case "table":
+@if(item.Required)
+{
+						@:if(!this.@(@item.LowerName)Exist()) return;
+}
+break;
+}
+}
+						this.btnLoading = true;
+@if(Model.WebType != 1)
+{
+						@:if (!this.dataForm.id) {
+                            @:request({
+                                @:url: `/api/@(@Model.NameSpace)/@(@Model.ClassName)`,
+                                @:method: 'post',
+                                @:data: this.dataForm,
+                            @:}).then((res) => {
+                                @:this.$message({
+                                    @:message: res.msg,
+                                    @:type: 'success',
+                                    @:duration: 1000,
+                                    @:onClose: () => {
+										@:this.btnLoading = false;
+                                        @:this.visible = false,
+                                        @:this.$emit('refresh', true)
+                                    @:}
+                                @:})
+                            @:}).finally(_=> this.btnLoading = false)
+                        @:} else {
+                            @:request({
+                                @:url: '/api/@(@Model.NameSpace)/@(@Model.ClassName)/' + this.dataForm.id,
+                                @:method: 'PUT',
+                                @:data: this.dataForm
+                            @:}).then((res) => {
+                                @:this.$message({
+                                    @:message: res.msg,
+                                    @:type: 'success',
+                                    @:duration: 1000,
+                                    @:onClose: () => {
+										@:this.btnLoading = false;
+                                        @:this.visible = false
+                                        @:this.$emit('refresh', true)
+                                    @:}
+                                @:})
+                            @:}).finally(_=> this.btnLoading = false)
+                        @:}
+}else{
+						@:request({
+							@:url: `/api/@(@Model.NameSpace)/@(@Model.ClassName)`,
+							@:method: 'post',
+							@:data: this.dataForm,
+						@:}).then((res) => {
+							@:this.$message({
+								@:message: res.msg,
+								@:type: 'success',
+								@:duration: 1000,
+                                @:onClose: () => {
+									@:this.btnLoading = false;
+									@:this.resetForm()
+								@:}
+							@:})
+						@:})
+}
+                    }
+                })
+			},
+@if(Model.WebType == 1)
+{
+			@:resetForm(){
+                @:this.$refs['elForm'].resetFields()
+                @:this.init()
+            @:}
+}
+@foreach(var item in Model.FormList)
+{
+@if(item.qtKey == "table")
+{
+			@:addHandle@(@item.Name)EntityList() {
+				@:let item = {
+@foreach(var children in item.ChildrenList)
+{
+@switch(children.qtKey)
+{
+case "checkbox":
+case "cascader":
+case "uploadImg":
+case "uploadFz":
+case "address":
+case "comSelect":
+@if(children.DefaultValue == null || children.DefaultValue.ToString() == "")
+{
+					@:@(@children.LowerName):[],
+}else{
+					@:@(@children.LowerName):@(@children.DefaultValue),
+}
+break;
+case "select":
+case "userSelect":
+case "treeSelect":
+case "depSelect":
+case "posSelect":
+@if(children.Multiple)
+{
+if(@children.DefaultValue == null || @children.DefaultValue.ToString() == "")
+{
+					@:@(@children.LowerName):[],
+}else{
+					@:@(@children.LowerName):@(@children.DefaultValue),
+}
+}else{
+if(@children.DefaultValue == null || @children.DefaultValue.ToString() == "")
+{
+					@:@(@children.LowerName):undefined,
+}else{
+					@:@(@children.LowerName):"@(@children.DefaultValue)",
+}
+}
+break;
+case "numInput":
+case "date":
+case "rate":
+case "slider":
+if(@children.DefaultValue == null || @children.DefaultValue.ToString() == "")
+{
+					@:@(@children.LowerName):undefined,
+}else{
+					@:@(@children.LowerName):@(@children.DefaultValue),
+}
+break;
+case "switch":
+					@:@(@children.LowerName):@(@children.DefaultValue ? "1" : "0"),
+break;
+default:
+if(@children.DefaultValue == null || @children.DefaultValue.ToString() == "")
+{
+					@:@(@children.LowerName):undefined,
+}else{
+					@:@(@children.LowerName):"@(@children.DefaultValue)",
+}
+break;
+}
+}
+				@:}
+				@:this.dataForm.@(@item.LowerName)List.push(item)
+			@:},
+			@:handleDel@(@item.Name)EntityList(index) {
+				@:this.dataForm.@(@item.LowerName)List.splice(index, 1);
+			@:},
+if(item.ShowSummary)
+{
+			@:get@(@item.Name)(param) {
+				@:const summaryField = @(@item.SummaryField)
+				@:const { columns, data } = param;
+				@:const sums = [];
+				@:columns.forEach((column, index) => {
+					@:if (index === 0) {
+						@:sums[index] = '合计';
+						@:return;
+					@:}
+					@:if (!summaryField.includes(column.property)) {
+						@:sums[index] = '';
+						@:return;
+					@:}
+					@:const values = data.map(item => Number(item[column.property]));
+					@:if (!values.every(value => isNaN(value))) {
+						@:sums[index] = values.reduce((prev, curr) => {
+							@:const value = Number(curr);
+							@:if (!isNaN(value)) {
+								@:return prev + curr;
+							@:} else {
+								@:return prev;
+							@:}
+						@:}, 0);
+					@:} else {
+						@:sums[index] = '';
+					@:}
+				@:});
+				@:return sums
+			@:},
+}
+}
+}
+		}
+	}
+</script>
+@{
+	void GenerateFormControls()
+	{
+				<el-form ref="@(@Model.FormRef)" :model="@(@Model.FormModel)" size="@(@Model.Size)" label-width="@(@Model.LabelWidth)px" label-position="@(@Model.LabelPosition)" :rules="@(@Model.FormRules)" :disabled="readonly">
+@foreach(var item in Model.FormAllContols)
+{
+@switch(item.qtKey)
+{
+@*栅格布局*@
+case "row":
+					@:<el-col :span="@(@item.Span)">
+						@:<el-row :gutter="@(@item.Gutter)">
+@{GenerateFormChildrenControls(item.Children,item.Gutter);}
+						@:</el-row>
+					@:</el-col>
+break;
+@*子表*@
+case "table":
+@if(Model.UseFormPermission)
+{
+					@:<el-col :span="@(@item.Span)" v-if="qt.hasFormP('@(@item.LowerChildTableName)List')">
+}
+else
+{
+					@:<el-col :span="@(@item.Span)">
+}
+						@:<el-form-item label-width="0">
+@if(item.ShowText)
+{
+							@:<div class="QT-common-title">
+								@:<h2>@(@item.Label)</h2>
+							@:</div>
+}
+							@:<QT-table :data="dataForm.@(@item.LowerChildTableName)List" size='mini' @(@Model.IsSummary ? "show-summary :summary-method='get" + @item.ChildTableName + "'" : "")>
+								@:<template #actions> 
+									@:<div class="QT-common-head">
+										@:<topOpts btn-type="text" @@add="addHandle@(@item.ChildTableName)EntityList()" />
+									@:</div>											
+								@:</template>
+								@:<el-table-column type="index" width="50" label="序号" align="center" />
+@foreach (var childrens in item.Children)
+{
+								@:<el-table-column prop="@(@childrens.LowerName)" @(@childrens.ColumnWidth)label="@(@childrens.Label)">
+@if(childrens.required)
+{
+									@:<template slot="header">
+										@:<span class="required-sign">*</span>@(@childrens.Label)
+									@:</template>
+}
+									@:<template slot-scope="scope">
+@switch(childrens.qtKey)
+{
+case "relationFormAttr":
+case "popupAttr":
+										@:<@childrens.Tag :relationField="'@(@childrens.RelationField)'+scope.$index" showField="@(@childrens.ShowField)"></@childrens.Tag>
+break;
+default:
+										@:<@(@childrens.Tag) v-model="scope.row.@(@childrens.LowerName)" @(@childrens.Field)@(@childrens.Style)@(@childrens.Placeholder)@(@childrens.Clearable)@(@childrens.Readonly)@(@childrens.Disabled)@(@childrens.ShowWordLimit)@(@childrens.Format)@(@childrens.ValueFormat)@(@childrens.AutoSize)@(@childrens.Multiple)@(@childrens.Size)@(@childrens.PrefixIcon)@(@childrens.SuffixIcon)@(@childrens.MaxLength)@(@childrens.ShowPassword)@(@childrens.Filterable)@(@childrens.MainProps)@(@childrens.Options)@(@childrens.ShowAllLevels)@(@childrens.Separator)@(@childrens.RangeSeparator)@(@childrens.StartPlaceholder)@(@childrens.EndPlaceholder)@(@childrens.PickerOptions)@(@childrens.Required)@(@childrens.Step)@(@childrens.StepStrictly)@(@childrens.Max)@(@childrens.Min)@(@childrens.ColumnWidth)@(@childrens.ModelId)@(@childrens.RelationField)@(@childrens.ColumnOptions)@(@childrens.HasPage)@(@childrens.PageSize)@(@childrens.PropsValue)@(@childrens.InterfaceId)@(@childrens.Precision)@(@childrens.ActiveText)@(@childrens.InactiveText)@(@childrens.ActiveColor)@(@childrens.InactiveColor)@(@childrens.IsSwitch)@(@childrens.ShowStops)@(@childrens.Accept)@(@childrens.ShowTip)@(@childrens.FileSize)@(@childrens.SizeUnit)@(@childrens.Limit)@(@childrens.ButtonText)@(@childrens.Level)@(@childrens.Type)@(@childrens.PopupType)@(@childrens.PopupTitle)@(@childrens.PopupWidth)>
+@switch(childrens.qtKey)
+{
+case "select":
+											@:<el-option v-for="(item, index) in @(@childrens.LowerName)Options" :key="index" :label="item.@(@childrens.Props.label)" :value="item.@(@childrens.Props.value)" :disabled="item.disabled"></el-option>
+break;
+case "comInput":
+@if(childrens.Prepend != null)
+{
+											@:<template slot="prepend">@(@childrens.Prepend)</template>
+}
+@if(childrens.Append != null)
+{
+											@:<template slot="append">@(@childrens.Append)</template>
+}
+break;
+}
+										@:</@(@childrens.Tag)>
+break;
+}
+
+									@:</template>
+								@:</el-table-column>
+}
+								@:<el-table-column label="操作" width="50">
+									@:<template slot-scope="scope">
+										@:<el-button size="mini" type="text" class="QT-table-delBtn" @@click="handleDel@(@item.ChildTableName)EntityList(scope.$index)">删除</el-button>
+									@:</template>
+								@:</el-table-column>
+							@:</QT-table>
+						@:</el-form-item>
+					@:</el-col>
+break;
+@*卡片*@
+case "card":
+					@:<el-col :span="@(@item.Span)">
+						@:<el-card class="mb-20" shadow="@(@item.Shadow)">
+@{GenerateFormChildrenControls(item.Children,item.Gutter);}
+						@:</el-card>
+					@:</el-col>
+break;
+@*折叠面板*@
+case "collapse":
+					@:<el-col :span="@(@item.Span)">
+						@:<el-collapse :accordion="@(@item.Accordion)" v-model="@(@item.Name)" class="mb-20">
+@foreach(var collapse in item.Children)
+{
+							@:<el-collapse-item title="@(@collapse.Title)" name="@(@collapse.Name)">
+@{GenerateFormChildrenControls(collapse.Children,item.Gutter);}
+							@:</el-collapse-item>
+}
+						@:</el-collapse>
+					@:</el-col>
+break;
+case "tab":
+					@:<el-col :span="@(@item.Span)">
+						@:<el-tabs type="@(@item.Type)" tab-position="@(@item.TabPosition)" v-model="@(@item.Name)" class="mb-10">
+@foreach(var collapse in item.Children)
+{
+							@:<el-tab-pane label="@(@collapse.Title)">
+@{GenerateFormChildrenControls(collapse.Children,item.Gutter);}
+							@:</el-tab-pane>
+}
+						@:</el-tabs>
+					@:</el-col>
+break;
+case "divider":
+					@:<el-col :span="@(@item.Span)">
+						@:<el-form-item label-width="0">
+							@:<el-divider content-position="@(@item.Contentposition)">@(@item.Default)</el-divider>
+						@:</el-form-item>
+					@:</el-col>
+break;
+case "groupTitle":
+					@:<el-col :span="@(@item.Span)">
+						@:<el-form-item label-width="0">
+							@:<groupTitle content-position="@(@item.Contentposition)" content="@(@item.Content)"></groupTitle>
+						@:</el-form-item>
+					@:</el-col>
+break;
+case "button":
+					@:<el-col :span="@(@item.Span)">
+						@:<el-form-item label-width="0">
+							@:<qt-button align="@(@item.Align)" buttonText="@(@item.ButtonText)" type="@(@item.Type)"></qt-button>
+						@:</el-form-item>
+					@:</el-col>
+break;
+case "QTText":
+					@:<el-col :span="@(@item.Span)">
+						@:<el-form-item label-width="0">
+							@:<QT-Text value="@(@item.DefaultValue)" :textStyle='@(@item.TextStyle)' :style='@(@item.Style)'></QT-Text>
+						@:</el-form-item>
+					@:</el-col>
+break;
+case "relationFormAttr":
+case "popupAttr":
+					@:<el-col :span="@(@item.Span)">
+						@:<el-form-item label="@(@item.Label)">
+							@:<@(@item.Tag) relationField="@(@item.RelationField)" showField="@(@item.ShowField)"></@(@item.Tag)>
+						@:</el-form-item>
+					@:</el-col>
+break;
+default:
+@if(item.NoShow == "")
+{
+@if(Model.UseFormPermission)
+{
+					@:<el-col :span="@(@item.Span)" v-if="qt.hasFormP('@(@item.OriginalName)')">
+}
+else
+{
+					@:<el-col :span="@(@item.Span)">
+}
+}else{
+					@:<el-col :span="@(@item.Span)" @(@item.NoShow)>
+}
+						@:<el-form-item label="@(@item.Label)" prop="@(@item.LowerName)">
+							@:<@(@item.Tag) @(@item.vModel)@(@item.Field)@(@item.Placeholder)@(@item.Clearable)@(@item.Readonly)@(@item.MainProps)@(@item.Required)@(@item.Disabled)@(@item.ShowWordLimit)@(@item.IsRange)@(@item.Style)@(@item.Type)@(@item.Format)@(@item.ValueFormat)@(@item.AutoSize)@(@item.Multiple)@(@item.Size)@(@item.PrefixIcon)@(@item.SuffixIcon)@(@item.MaxLength)@(@item.Step)@(@item.StepStrictly)@(@item.ControlsPosition)@(@item.ShowChinese)@(@item.ShowPassword)@(@item.Filterable)@(@item.ShowAllLevels)@(@item.RangeSeparator)@(@item.StartPlaceholder)@(@item.EndPlaceholder)@(@item.Separator)@(@item.PickerOptions)@(@item.Max)@(@item.Min)@(@item.AllowHalf)@(@item.ShowTexts)@(@item.ShowScore)@(@item.ShowAlpha)@(@item.ColorFormat)@(@item.ActiveText)@(@item.InactiveText)@(@item.ActiveColor)@(@item.IsSwitch)@(@item.ShowStops)@(@item.Range)@(@item.Accept)@(@item.ShowTip)@(@item.FileSize)@(@item.SizeUnit)@(@item.Limit)@(@item.Contentposition)@(@item.ButtonText)@(@item.Level)@(@item.ActionText)@(@item.Shadow)@(@item.Content)@(@item.Options)@(@item.ModelId)@(@item.RelationField)@(@item.ColumnOptions)@(@item.HasPage)@(@item.PageSize)@(@item.PropsValue)@(@item.InterfaceId)@(@item.Precision)@(@item.ShowLevel)@(@item.PopupType)@(@item.PopupTitle)@(@item.PopupWidth)>
+@switch(item.qtKey)
+{
+case "select":
+								@:<el-option v-for="(item, index) in @(@item.LowerName)Options" :key="index" :label="item.@(@item.Props.label)" :value="item.@(@item.Props.value)" ></el-option>
+break;
+case "radio":
+								@:<el-radio@(@item.OptionType) v-for="(item, index) in @(@item.LowerName)Options" :key="index" :label="item.@(@item.Props.value)"  >{{item.@(@item.Props.label)}}</el-radio@(@item.OptionType)>
+break;
+case "checkbox":
+								@:<el-checkbox@(@item.OptionType) v-for="(item, index) in @(@item.LowerName)Options" :key="index" :label="item.@(@item.Props.value)" >{{item.@(@item.Props.label)}}</el-checkbox@(@item.OptionType)>
+break;
+case "comInput":
+@if(item.Prepend != null)
+{
+								@:<template slot="prepend">@(@item.Prepend)</template>
+}
+@if(item.Append != null)
+{
+								@:<template slot="append">@(@item.Append)</template>
+}
+break;
+}
+							@:</@(@item.Tag)>
+						@:</el-form-item>
+					@:</el-col>
+break;
+}
+}
+				</el-form>
+	}
+	
+	void GenerateFormChildrenControls(ICollection<FormControlDesignModel> childrenList, int gutter)
+	{
+@foreach(var item in childrenList)
+{
+@switch(item.qtKey)
+{
+case "row":
+					@:<el-col :span="@(@item.Span)">
+						@:<el-row :gutter="@(@gutter)">
+@{GenerateFormChildrenControls(item.Children, gutter);}
+						@:</el-row>
+					@:</el-col>
+break;
+case "table":
+@if(Model.UseFormPermission)
+{
+					@:<el-col :span="@(@item.Span)" v-if="qt.hasFormP('@(@item.LowerChildTableName)List')">
+}
+else
+{
+					@:<el-col :span="@(@item.Span)">
+}
+						@:<el-form-item label-width="0">
+@if(item.ShowText)
+{
+							@:<div class="QT-common-title">
+								@:<h2>@(@item.Label)</h2>
+							@:</div>
+}
+							@:<QT-table :data="dataForm.@(@item.LowerChildTableName)List" size='mini' @(@Model.IsSummary ? "show-summary :summary-method='get" + @item.ChildTableName + "'" : "")>
+								@:<template #actions> 
+									@:<div class="QT-common-head">
+										@:<topOpts btn-type="text" @@add="addHandle@(@item.ChildTableName)EntityList()" />
+									@:</div>											
+								@:</template>
+@foreach (var childrens in item.Children)
+{
+								@:<el-table-column prop="@(@childrens.LowerName)" @(@childrens.ColumnWidth)label="@(@childrens.Label)">
+@if(childrens.required)
+{
+									@:<template slot="header">
+										@:<span class="required-sign">*</span>@(@childrens.Label)
+									@:</template>
+}
+									@:<template slot-scope="scope">
+@switch(childrens.qtKey)
+{
+case "relationFormAttr":
+case "popupAttr":
+										@:<@childrens.Tag :relationField="'@(@childrens.RelationField)'+scope.$index" showField="@(@childrens.ShowField)"></@childrens.Tag>
+break;
+default:
+										@:<@(@childrens.Tag) v-model="scope.row.@(@childrens.LowerName)" @(@childrens.Field)@(@childrens.Style)@(@childrens.Placeholder)@(@childrens.Clearable)@(@childrens.Readonly)@(@childrens.Disabled)@(@childrens.ShowWordLimit)@(@childrens.Format)@(@childrens.ValueFormat)@(@childrens.AutoSize)@(@childrens.Multiple)@(@childrens.Size)@(@childrens.PrefixIcon)@(@childrens.SuffixIcon)@(@childrens.MaxLength)@(@childrens.ShowPassword)@(@childrens.Filterable)@(@childrens.MainProps)@(@childrens.Options)@(@childrens.ShowAllLevels)@(@childrens.Separator)@(@childrens.RangeSeparator)@(@childrens.StartPlaceholder)@(@childrens.EndPlaceholder)@(@childrens.PickerOptions)@(@childrens.Required)@(@childrens.Step)@(@childrens.StepStrictly)@(@childrens.Max)@(@childrens.Min)@(@childrens.ColumnWidth)@(@childrens.ModelId)@(@childrens.RelationField)@(@childrens.ColumnOptions)@(@childrens.HasPage)@(@childrens.PageSize)@(@childrens.PropsValue)@(@childrens.InterfaceId)@(@childrens.Precision)@(@childrens.ActiveText)@(@childrens.InactiveText)@(@childrens.ActiveColor)@(@childrens.InactiveColor)@(@childrens.IsSwitch)@(@childrens.ShowStops)@(@childrens.Accept)@(@childrens.ShowTip)@(@childrens.FileSize)@(@childrens.SizeUnit)@(@childrens.Limit)@(@childrens.ButtonText)@(@childrens.Level)@(@childrens.Type)@(@childrens.PopupType)@(@childrens.PopupTitle)@(@childrens.PopupWidth)>
+@switch(childrens.qtKey)
+{
+case "select":
+											@:<el-option v-for="(item, index) in @(@childrens.LowerName)Options" :key="index" :label="item.@(@childrens.Props.label)" :value="item.@(@childrens.Props.value)" :disabled="item.disabled"></el-option>
+break;
+case "comInput":
+@if(childrens.Prepend != null)
+{
+											@:<template slot="prepend">@(@childrens.Prepend)</template>
+}
+@if(childrens.Append != null)
+{
+											@:<template slot="append">@(@childrens.Append)</template>
+}
+break;
+}
+										@:</@(@childrens.Tag)>
+break;
+}
+									@:</template>
+								@:</el-table-column>
+}
+								@:<el-table-column label="操作" width="50">
+									@:<template slot-scope="scope">
+										@:<el-button size="mini" type="text" class="QT-table-delBtn" @@click="handleDel@(@item.ChildTableName)EntityList(scope.$index)">删除</el-button>
+									@:</template>
+								@:</el-table-column>
+							@:</QT-table>
+						@:</el-form-item>
+					@:</el-col>
+break;
+case "card":
+					@:<el-col :span="@(@item.Span)">
+						@:<el-card class="mb-20" shadow="@(@item.Shadow)">
+@{GenerateFormChildrenControls(item.Children, gutter);}
+						@:</el-card>
+					@:</el-col>
+break;
+case "collapse":
+					@:<el-col :span="@(@item.Span)">
+						@:<el-collapse :accordion="@(@item.Accordion)" v-model="@(@item.Name)" class="mb-20">
+@foreach(var collapse in item.Children)
+{
+							@:<el-collapse-item title="@(@collapse.Title)" name="@(@collapse.Name)">
+@{GenerateFormChildrenControls(collapse.Children, gutter);}
+							@:</el-collapse-item>
+}
+						@:</el-collapse>
+					@:</el-col>
+break;
+case "tab":
+					@:<el-col :span="@(@item.Span)">
+						@:<el-tabs type="@(@item.Type)" tab-position="@(@item.TabPosition)" v-model="@(@item.Name)" class="mb-10">
+@foreach(var collapse in item.Children)
+{
+							@:<el-tab-pane label="@(@collapse.Title)">
+@{GenerateFormChildrenControls(collapse.Children, gutter);}
+							@:</el-tab-pane>
+}
+						@:</el-tabs>
+					@:</el-col>
+break;
+case "divider":
+					@:<el-col :span="@(@item.Span)">
+						@:<el-form-item label-width="0">
+							@:<el-divider content-position="@(@item.Contentposition)">@(@item.Default)</el-divider>
+						@:</el-form-item>
+					@:</el-col>
+break;
+case "groupTitle":
+					@:<el-col :span="@(@item.Span)">
+						@:<el-form-item label-width="0">
+							@:<groupTitle content-position="@(@item.Contentposition)" content="@(@item.Content)"></groupTitle>
+						@:</el-form-item>
+					@:</el-col>
+break;
+case "button":
+					@:<el-col :span="@(@item.Span)">
+						@:<el-form-item label-width="0">
+							@:<qt-button align="@(@item.Align)" buttonText="@(@item.ButtonText)" type="@(@item.Type)"></qt-button>
+						@:</el-form-item>
+					@:</el-col>
+break;
+case "QTText":
+					@:<el-col :span="@(@item.Span)">
+						@:<el-form-item label-width="0">
+							@:<QT-Text value="@(@item.DefaultValue)" :textStyle='@(@item.TextStyle)' :style='@(@item.Style)'></QT-Text>
+						@:</el-form-item>
+					@:</el-col>
+break;
+case "relationFormAttr":
+case "popupAttr":
+					@:<el-col :span="@(@item.Span)">
+						@:<el-form-item label="@(@item.Label)">
+							@:<@(@item.Tag) relationField="@(@item.RelationField)" showField="@(@item.ShowField)"></@(@item.Tag)>
+						@:</el-form-item>
+					@:</el-col>
+break;
+default:
+@if(item.NoShow == "")
+{
+@if(Model.UseFormPermission)
+{
+					@:<el-col :span="@(@item.Span)" v-if="qt.hasFormP('@(@item.OriginalName)')">
+}
+else
+{
+					@:<el-col :span="@(@item.Span)">
+}
+}else{
+					@:<el-col :span="@(@item.Span)" @(@item.NoShow)>
+}
+						@:<el-form-item label="@(@item.Label)" prop="@(@item.LowerName)">
+							@:<@(@item.Tag) @(@item.vModel)@(@item.Field)@(@item.Placeholder)@(@item.Clearable)@(@item.Readonly)@(@item.MainProps)@(@item.Required)@(@item.Disabled)@(@item.ShowWordLimit)@(@item.IsRange)@(@item.Style)@(@item.Type)@(@item.Format)@(@item.ValueFormat)@(@item.AutoSize)@(@item.Multiple)@(@item.Size)@(@item.PrefixIcon)@(@item.SuffixIcon)@(@item.MaxLength)@(@item.Step)@(@item.StepStrictly)@(@item.ControlsPosition)@(@item.ShowChinese)@(@item.ShowPassword)@(@item.Filterable)@(@item.ShowAllLevels)@(@item.RangeSeparator)@(@item.StartPlaceholder)@(@item.EndPlaceholder)@(@item.Separator)@(@item.PickerOptions)@(@item.Max)@(@item.Min)@(@item.AllowHalf)@(@item.ShowTexts)@(@item.ShowScore)@(@item.ShowAlpha)@(@item.ColorFormat)@(@item.ActiveText)@(@item.InactiveText)@(@item.ActiveColor)@(@item.IsSwitch)@(@item.ShowStops)@(@item.Range)@(@item.Accept)@(@item.ShowTip)@(@item.FileSize)@(@item.SizeUnit)@(@item.Limit)@(@item.Contentposition)@(@item.ButtonText)@(@item.Level)@(@item.ActionText)@(@item.Shadow)@(@item.Content)@(@item.Options)@(@item.ModelId)@(@item.RelationField)@(@item.ColumnOptions)@(@item.HasPage)@(@item.PageSize)@(@item.PropsValue)@(@item.InterfaceId)@(@item.ShowLevel)@(@item.PopupType)@(@item.PopupTitle)@(@item.PopupWidth)>
+@switch(item.qtKey)
+{
+case "select":
+								@:<el-option v-for="(item, index) in @(@item.LowerName)Options" :key="index" :label="item.@(@item.Props.label)" :value="item.@(@item.Props.value)" ></el-option>
+break;
+case "radio":
+								@:<el-radio@(@item.OptionType) v-for="(item, index) in @(@item.LowerName)Options" :key="index" :label="item.@(@item.Props.value)"  >{{item.@(@item.Props.label)}}</el-radio@(@item.OptionType)>
+break;
+case "checkbox":
+								@:<el-checkbox@(@item.OptionType) v-for="(item, index) in @(@item.LowerName)Options" :key="index" :label="item.@(@item.Props.value)" >{{item.@(@item.Props.label)}}</el-checkbox@(@item.OptionType)>
+break;
+case "comInput":
+@if(item.Prepend != null)
+{
+								@:<template slot="prepend">@(@item.Prepend)</template>
+}
+@if(item.Append != null)
+{
+								@:<template slot="append">@(@item.Append)</template>
+}
+break;
+}
+							@:</@(@item.Tag)>
+						@:</el-form-item>
+					@:</el-col>
+break;
+}
+}
+	}
+}

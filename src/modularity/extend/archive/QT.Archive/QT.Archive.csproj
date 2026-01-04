@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+		<PropertyGroup>
+				<TargetFramework>net6.0</TargetFramework>
+				<ImplicitUsings>enable</ImplicitUsings>
+		</PropertyGroup>
+
+		<ItemGroup>
+				<ProjectReference Include="..\..\..\..\infrastructure\QT.Extras.WebSockets\QT.Extras.WebSockets.csproj" />
+				<ProjectReference Include="..\..\..\common\QT.Common.Core\QT.Common.Core.csproj" />
+				<ProjectReference Include="..\..\..\common\QT.Common\QT.Common.csproj" />
+				<ProjectReference Include="..\..\..\message\QT.Message.Entitys\QT.Message.Entitys.csproj" />
+				<ProjectReference Include="..\..\..\message\QT.Message\QT.Message.csproj" />
+				<ProjectReference Include="..\..\..\system\QT.Systems.Interfaces\QT.Systems.Interfaces.csproj" />
+				<ProjectReference Include="..\..\workflow\QT.WorkFlow.Interfaces\QT.WorkFlow.Interfaces.csproj" />
+		</ItemGroup>
+	<Import Project="..\..\Plugin.Build.targets" />
+</Project>

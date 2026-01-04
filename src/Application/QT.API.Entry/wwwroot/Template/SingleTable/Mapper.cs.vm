@@ -1,0 +1,167 @@
+﻿using QT.Common.Security;
+@*是否需要上传文件引用*@
+@if(Model.IsUploading)
+{
+@:using QT.Common.Models;
+}
+using QT.@(@Model.NameSpace).Entitys.Dto.@(@Model.ClassName);
+using Mapster;
+
+namespace QT.@(@Model.NameSpace).Entitys.Mapper.@Model.MainTable;
+
+public class Mapper : IRegister
+{
+	public void Register(TypeAdapterConfig config)
+	{
+@*判断是否需要映射*@
+@if(Model.IsMapper)
+{
+@*判断WebType 1-纯表单,2-常规表单,3-流程列表单*@
+@switch(Model.WebType)
+{
+case 1:
+@{GetCrInputToEntity(); }
+break;
+case 2:
+@{GetCrInputToEntity(); }
+@{GetEntityToInfoOutput();}
+break;
+case 3:
+@{GetCrInputToEntity(); }
+@{GetEntityToInfoOutput();}
+@{GetEntityToUpInput();}
+break;
+}
+}
+	}
+}
+@{
+	@*新增输入转实体*@
+	void GetCrInputToEntity()
+	{	
+		@:config.ForType<@(@Model.MainTable)CrInput, @(@Model.MainTable)Entity>()
+@*循环表字段*@
+@foreach (var column in Model.TableField)
+{
+@*判断qtKey不为空*@
+@if (column.qtKey != null)
+{
+switch(column.qtKey)
+{
+@*下拉框控件*@
+case "select":
+case "userSelect":
+case "treeSelect":
+case "depSelect":
+case "posSelect":
+@*是否为多选*@
+@if(column.IsMultiple)
+{
+			@:.Map(dest => dest.@(@column.ColumnName), src => src.@(@column.LowerColumnName).ToJsonString())
+}
+break;
+@*复选框、级联、省市区、图片上传、文件上传*@
+case "checkbox":
+case "cascader":
+case "comSelect":
+case "address":
+case "uploadImg":
+case "uploadFz":
+			@:.Map(dest => dest.@(@column.ColumnName), src => src.@(@column.LowerColumnName).ToJsonString())
+break;
+}
+}
+}
+		@:;
+	}
+}
+@{
+	@*实体转详情输出*@
+	void GetEntityToInfoOutput()
+	{
+		@:config.ForType<@(@Model.MainTable)Entity, @(@Model.MainTable)InfoOutput>()
+@foreach (var column in Model.TableField)
+{
+@if (column.qtKey != null)
+{
+switch(column.qtKey)
+{
+case "select":
+case "userSelect":
+case "treeSelect":
+case "depSelect":
+case "posSelect":
+@if(column.IsMultiple)
+{
+			@:.Map(dest => dest.@(@column.LowerColumnName), src => src.@(@column.ColumnName).ToObject<List<string>>())
+}
+break;
+case "cascader":
+case "comSelect":
+case "address":
+@if(column.IsMultiple)
+{
+			@:.Map(dest => dest.@(@column.LowerColumnName), src => src.@(@column.ColumnName).ToObject<List<List<string>>>())
+}
+else
+{
+			@:.Map(dest => dest.@(@column.LowerColumnName), src => src.@(@column.ColumnName).ToObject<List<string>>())
+}
+break;
+case "checkbox":
+			@:.Map(dest => dest.@(@column.LowerColumnName), src => src.@(@column.ColumnName).ToObject<List<string>>())
+break;
+case "uploadImg":
+case "uploadFz":
+			@:.Map(dest => dest.@(@column.LowerColumnName), src => src.@(@column.ColumnName).ToObject<List<FileControlsModel>>())
+break;
+}
+}
+}
+		@:;
+	}
+}
+@{
+	@*实体转修改输入*@
+	void GetEntityToUpInput()
+	{
+		@:config.ForType<@(@Model.MainTable)Entity, @(@Model.MainTable)UpInput>()
+@foreach (var column in Model.TableField)
+{
+@if (column.qtKey != null)
+{
+switch(column.qtKey)
+{
+case "select":
+case "userSelect":
+case "treeSelect":
+case "depSelect":
+case "posSelect":
+@if(column.IsMultiple)
+{
+			@:.Map(dest => dest.@(@column.LowerColumnName), src => src.@(@column.ColumnName).ToObject<List<string>>())
+}
+break;
+case "cascader":
+case "comSelect":
+case "address":
+@if(column.IsMultiple)
+{
+			@:.Map(dest => dest.@(@column.LowerColumnName), src => src.@(@column.ColumnName).ToObject<List<List<string>>>())
+}else{
+			@:.Map(dest => dest.@(@column.LowerColumnName), src => src.@(@column.ColumnName).ToObject<List<string>>())
+}
+break;
+case "checkbox":
+			@:.Map(dest => dest.@(@column.LowerColumnName), src => src.@(@column.ColumnName).ToObject<List<string>>())
+break;
+case "uploadImg":
+case "uploadFz":
+			@:.Map(dest => dest.@(@column.LowerColumnName), src => src.@(@column.ColumnName).ToObject<List<FileControlsModel>>())
+break;
+}
+}
+}
+		@:;
+	}
+}

@@ -1,0 +1,24 @@
+{
+  "ConnectionStrings": {
+    "ConfigId": "default",
+    "DBName": "aitools",
+    "DBType": "MySql", //MySql;SqlServer;Oracle;PostgreSQL;Dm;Kdbndp;Sqlite;
+    "Host": "111.230.39.65",
+    "Port": "3396",
+    "UserName": "root",
+    "Password": "yskj@1925",
+    //SqlServer
+    //"DefaultConnection": "Data Source=150.158.162.223;Initial Catalog={0};User ID=sa;Password=K3%*S4D!XDqE39k@;MultipleActiveResultSets=true"
+    //"DefaultConnection": "Data Source=192.168.0.11;Initial Catalog={0};User ID=netcore_test;Password=EtMhNTLJsGTeZEaD;Connection Timeout=5;MultipleActiveResultSets=true"
+    //Kdbndp
+    //"DefaultConnection": "Server=192.168.0.103;Port=54321;UID=YANYU;PWD=123456;database=YANSOURCE"
+    //Dm
+    //"DefaultConnection": "Server=192.168.0.50; User Id=QTTEST; PWD=I97eH!bRfy55qGzF;DATABASE=QTTEST"
+    //Oracle
+    //"DefaultConnection": "Data Source=(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=192.168.0.19)(PORT=1521))(CONNECT_DATA=(SERVER = DEDICATED)(SERVICE_NAME=QTCLOUD)));User Id=QTCLOUD;Password=QTCLOUD"
+    //PostgreSQL
+    //"DefaultConnection": "PORT=5432;DATABASE=java_boot_dev_postgresql;HOST=192.168.0.103;PASSWORD=123456;USER ID=postgres"
+    //MySql
+    "DefaultConnection": "server=111.230.39.65;Port=3396;Database={0};Uid=root;Pwd=yskj@1925;AllowLoadLocalInfile=true;SslMode=none"
+  }
+}

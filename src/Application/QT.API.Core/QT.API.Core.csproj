@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\modularity\message\QT.Message\QT.Message.csproj" />
+    <ProjectReference Include="..\..\modularity\oauth\QT.OAuth\QT.OAuth.csproj" />
+    <ProjectReference Include="..\..\modularity\system\QT.Systems\QT.Systems.csproj" />
+    <ProjectReference Include="..\..\modularity\taskschedule\QT.TaskScheduler\QT.TaskScheduler.csproj" />
+		<ProjectReference Include="..\..\modularity\extend\app\QT.Apps\QT.Apps.csproj" />
+    <ProjectReference Include="..\..\modularity\extend\visualdata\QT.VisualData\QT.VisualData.csproj" />
+    <ProjectReference Include="..\..\modularity\extend\visualdev\QT.VisualDev\QT.VisualDev.csproj" />
+    <ProjectReference Include="..\..\modularity\extend\workflow\QT.WorkFlow\QT.WorkFlow.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Aspose.Words">
+      <HintPath>..\..\..\dll\Aspose.Words.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

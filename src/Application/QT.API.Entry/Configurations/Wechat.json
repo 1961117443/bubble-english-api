@@ -1,0 +1,9 @@
+{
+  "Wechat": {
+    "miniprogram": {
+      "AppID": "wx26d84983069129f7",
+      "AppSecret": "ae1b36810741b67c7f2d999c6cd9bb9e",
+      "env_version": "release"
+    }
+  }
+}

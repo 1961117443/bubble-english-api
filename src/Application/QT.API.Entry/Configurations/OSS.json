@@ -1,0 +1,12 @@
+{
+  "OSS": {
+    "BucketName": "Invalid",
+    //文件存储类型(Invalid(本地),MinIo,Aliyun,QCloud,Qiniu)
+    "Provider": "MinIo",
+    "Endpoint": "219.151.28.155:20000",
+    "AccessKey": "root",
+    "SecretKey": "qtsoft@95033##Cn2024",
+    "IsEnableHttps": false,
+    "IsEnableCache": true
+  }
+}

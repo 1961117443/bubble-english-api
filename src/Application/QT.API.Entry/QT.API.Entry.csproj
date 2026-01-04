@@ -1,0 +1,293 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<OutputType>Exe</OutputType>
+		<PluginFramework>net6.0</PluginFramework>
+		<OutputEncoding>utf-8</OutputEncoding>
+	</PropertyGroup>
+	
+	<ItemGroup>
+		<None Remove="sensitive-words.txt" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<EmbeddedResource Include="sensitive-words.txt" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\QT.API.Core\QT.API.Core.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Update="wwwroot\Template\appForm.vue.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\appIndex.vue.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\appWorkflowForm.vue.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\appWorkflowIndex.vue.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\Auxiliary\CrInput.cs.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\Auxiliary\InfoOutput.cs.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\Auxiliary\Mapper.cs.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\CrInput.cs.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\Detail.vue.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\Entity.cs.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\ExportBox.vue.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\ExportJson.json.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\Form.vue.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\index.vue.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\InfoOutput.cs.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\ListOutput.cs.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\ListQueryInput.cs.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\MainBeltVice\CrInput.cs.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\MainBeltVice\Entity.cs.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\MainBeltVice\InfoOutput.cs.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\MainBeltVice\ListOutput.cs.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\MainBeltVice\ListQueryInput.cs.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\MainBeltVice\Mapper.cs.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\MainBeltVice\Service.cs.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\MainBeltVice\Workflow\Service.cs.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\MainBelt\CrInput.cs.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\MainBelt\Entity.cs.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\MainBelt\InfoOutput.cs.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\MainBelt\ListOutput.cs.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\MainBelt\ListQueryInput.cs.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\MainBelt\Mapper.cs.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\MainBelt\Service.cs.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\MainBelt\Workflow\Service.cs.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\PrimarySecondary\CrInput.cs.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\PrimarySecondary\Entity.cs.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\PrimarySecondary\InfoOutput.cs.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\PrimarySecondary\ListOutput.cs.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\PrimarySecondary\ListQueryInput.cs.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\PrimarySecondary\Mapper.cs.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\PrimarySecondary\Service.cs.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\PrimarySecondary\Workflow\Service.cs.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\SingleTable\CrInput.cs.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\SingleTable\InfoOutput.cs.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\SingleTable\ListOutput.cs.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\SingleTable\Mapper.cs.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\SingleTable\Service.cs.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\SingleTable\Entity.cs.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\SingleTable\ListQueryInput.cs.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\SingleTable\Workflow\Service.cs.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\UpInput.cs.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\WorkflowForm.vue.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\WorkflowIndex.vue.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\Workflow\MainBeltVice\Service.cs.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\Workflow\MainBelt\Service.cs.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="wwwroot\Template\Workflow\SingleTable\Service.cs.vm">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>		  
+	  </Content>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Properties\PublishProfiles\" />
+	  <Folder Include="TemporaryFile\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="Aspose.Total.NET.lic">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
+
+
+		<!-- ======== 参数设置 ======== -->
+		<PropertyGroup>
+				<!-- 插件项目路径，可按你的目录结构调整 -->
+				<PluginsRoot>$(SolutionDir)modularity\extend\</PluginsRoot>
+				<!-- 发布输出路径（dotnet publish 会自动设置 PublishDir） -->
+				<!-- 优先使用 .pubxml 中定义的发布路径 -->
+				<PublishOutputDir Condition="'$(PublishUrl)' != ''">$(PublishUrl)\</PublishOutputDir>
+
+				<!-- 如果未定义 PublishUrl，则退回到默认 PublishDir -->
+				<PublishOutputDir Condition="'$(PublishOutputDir)' == '' and '$(PublishDir)' != ''">$(PublishDir)</PublishOutputDir>
+
+				<!-- 如果仍为空，则退回到主程序输出路径 -->
+				<PublishOutputDir Condition="'$(PublishOutputDir)' == ''">$(MSBuildProjectDirectory)\bin\$(Configuration)\$(TargetFramework)\publish\</PublishOutputDir>
+
+				<!-- 插件发布输出路径 -->
+				<PluginsPublishDir>$(PublishOutputDir)plugins\</PluginsPublishDir>
+		</PropertyGroup>
+
+		<!-- ======== 发布前先编译所有插件项目 ======== -->
+		<Target Name="BuildAllPlugins" BeforeTargets="Publish">
+				<!--<Message Text="PluginsRoot:$(PluginsRoot)" Importance="High" />-->
+				<Message Text="PublishOutputDir:$(PublishOutputDir)" Importance="High" />
+				<!--<Message Text="PluginsPublishDir:$(PluginsPublishDir)" Importance="High" />-->
+				<Message Text="开始编译所有插件项目..." Importance="High" />
+				<!-- 扫描所有插件项目文件 -->
+				<ItemGroup>
+						<PluginProjects Include="$(PluginsRoot)**\*.csproj" />
+				</ItemGroup>
+
+				<Message Text="发现插件项目：@(PluginProjects)" Importance="High" />
+
+				<!-- 编译每个插件项目 -->
+				<!--<MSBuild Projects="@(PluginProjects)" 
+						 Targets="Build" 
+						 Properties="Configuration=$(Configuration);Platform=$(Platform)" 
+						 BuildInParallel="true" />-->
+
+			<!-- 按顺序编译插件，防止 CPU 爆满 -->
+			<Exec Command="dotnet build &quot;%(PluginProjects.Identity)&quot; -c $(Configuration)"
+				  WorkingDirectory="$(MSBuildProjectDirectory)"
+				  StandardOutputImportance="Low"
+				  StandardErrorImportance="High"
+				  IgnoreExitCode="false"
+				  Condition="'%(PluginProjects.Identity)' != ''" />
+
+				<Message Text="插件项目编译完成。" Importance="High" />
+		</Target>
+
+		<!-- ======== 发布后复制插件DLL到 publish/plugins ======== -->
+		<Target Name="CopyPluginsToPublishDir" AfterTargets="Publish">
+			<!-- 确保目录存在 -->
+			<MakeDir Directories="$(PluginsPublishDir)" Condition="!Exists('$(PluginsPublishDir)')" />
+			<Message Text="开始复制插件DLL到: $(PluginsPublishDir)" Importance="High" />
+
+			<!-- 扫描所有插件DLL（根据项目结构调整） -->
+			<ItemGroup>
+				<AllPluginDlls Include="$(PluginsRoot)**\bin\$(Configuration)\$(TargetFramework)\*.dll" />
+				<MainDlls Include="$(PublishOutputDir)*.dll" />
+
+			</ItemGroup>
+
+			<!-- 标记同名文件 -->
+			<ItemGroup>
+				<PluginDllsToCopy Include="@(AllPluginDlls)">
+					<_ExistsInMain Condition=" '%(Filename)' == '@(MainDlls->'%(Filename)')' ">true</_ExistsInMain>
+				</PluginDllsToCopy>
+			</ItemGroup>
+
+			<!-- 过滤掉与主项目重名的DLL -->
+			<ItemGroup>
+				<PluginDllsToCopy Remove="@(PluginDllsToCopy)" Condition=" '%(PluginDllsToCopy._ExistsInMain)' == 'true' " />
+			</ItemGroup>
+
+			<Message Text="主程序DLL：@(MainDlls)" Importance="High" />
+			<Message Text="最终要复制的插件DLL：@(PluginDllsToCopy)" Importance="High" />
+
+
+
+			<!-- 执行复制 -->
+			<Copy SourceFiles="@(PluginDllsToCopy)" DestinationFolder="$(PluginsPublishDir)" SkipUnchangedFiles="true" />
+
+			<Message Text="插件复制完成 ✅" Importance="High" />
+			
+		</Target>
+		
+</Project>

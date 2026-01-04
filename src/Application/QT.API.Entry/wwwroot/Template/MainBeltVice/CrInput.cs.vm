@@ -1,0 +1,214 @@
+﻿@if(Model.IsUploading)
+{
+@:using QT.Common.Models;
+}
+
+namespace QT.@(@Model.NameSpace).Entitys.Dto.@Model.ClassName;
+
+/// <summary>
+/// @(@Model.BusName)修改输入参数.
+/// </summary>
+public class @(@Model.MainTable)CrInput
+{
+@foreach (var column in Model.TableField)
+{
+@if (column.qtKey != null)
+{
+@if(!column.IsAuxiliary)
+{
+switch(column.qtKey)
+{
+case "select":
+case "userSelect":
+case "treeSelect":
+case "depSelect":
+case "posSelect":
+@if(column.IsMultiple)
+{
+    @:/// <summary>
+    @:/// @column.ColumnComment.
+    @:/// </summary>
+    @:public List<string> @column.LowerColumnName { get; set; }
+@:
+}
+else
+{
+    @:/// <summary>
+    @:/// @column.ColumnComment.
+    @:/// </summary>
+    @:public string @column.LowerColumnName { get; set; }
+@:
+}
+break;
+case "cascader":
+case "address":
+case "comSelect":
+@if(column.IsMultiple)
+{
+    @:/// <summary>
+    @:/// @column.ColumnComment.
+    @:/// </summary>
+    @:public List<List<string>> @column.LowerColumnName { get; set; }
+@:
+}
+else
+{
+    @:/// <summary>
+    @:/// @column.ColumnComment.
+    @:/// </summary>
+    @:public List<string> @column.LowerColumnName { get; set; }
+@:
+}
+break;
+case "switch":
+    @:/// <summary>
+    @:/// @column.ColumnComment.
+    @:/// </summary>
+    @:public bool @column.LowerColumnName { get; set; }
+@:
+break;
+case "checkbox":
+    @:/// <summary>
+    @:/// @column.ColumnComment.
+    @:/// </summary>
+    @:public List<string> @column.LowerColumnName { get; set; }
+@:
+break;
+case "radio":
+    @:/// <summary>
+    @:/// @column.ColumnComment.
+    @:/// </summary>
+    @:public string @column.LowerColumnName { get; set; }
+@:
+break;
+case "uploadImg":
+case "uploadFz":
+    @:/// <summary>
+    @:/// @column.ColumnComment.
+    @:/// </summary>
+    @:public List<FileControlsModel> @column.LowerColumnName { get; set; }
+@:
+break;
+default:
+    @:/// <summary>
+    @:/// @column.ColumnComment.
+    @:/// </summary>
+    @:public @column.NetType @column.LowerColumnName { get; set; }
+@:
+break;
+}
+}
+else
+{
+switch(column.qtKey)
+{
+case "select":
+case "userSelect":
+case "treeSelect":
+case "depSelect":
+case "posSelect":
+@if(column.IsMultiple)
+{
+    @:/// <summary>
+    @:/// @column.ColumnComment.
+    @:/// </summary>
+    @:public List<string> qt_@(@column.TableName)_qt_@column.LowerColumnName { get; set; }
+@:
+}
+else
+{
+    @:/// <summary>
+    @:/// @column.ColumnComment.
+    @:/// </summary>
+    @:public string qt_@(@column.TableName)_qt_@column.LowerColumnName { get; set; }
+@:
+}
+break;
+case "cascader":
+case "address":
+case "comSelect":
+@if(column.IsMultiple)
+{
+    @:/// <summary>
+    @:/// @column.ColumnComment.
+    @:/// </summary>
+    @:public List<List<string>> qt_@(@column.TableName)_qt_@column.LowerColumnName { get; set; }
+@:
+}
+else
+{
+    @:/// <summary>
+    @:/// @column.ColumnComment.
+    @:/// </summary>
+    @:public List<string> qt_@(@column.TableName)_qt_@column.LowerColumnName { get; set; }
+@:
+}
+break;
+case "switch":
+    @:/// <summary>
+    @:/// @column.ColumnComment.
+    @:/// </summary>
+    @:public bool qt_@(@column.TableName)_qt_@column.LowerColumnName { get; set; }
+@:
+break;
+case "checkbox":
+    @:/// <summary>
+    @:/// @column.ColumnComment.
+    @:/// </summary>
+    @:public List<string> qt_@(@column.TableName)_qt_@column.LowerColumnName { get; set; }
+@:
+break;
+case "radio":
+    @:/// <summary>
+    @:/// @column.ColumnComment.
+    @:/// </summary>
+    @:public string qt_@(@column.TableName)_qt_@column.LowerColumnName { get; set; }
+@:
+break;
+case "uploadImg":
+case "uploadFz":
+    @:/// <summary>
+    @:/// @column.ColumnComment.
+    @:/// </summary>
+    @:public List<FileControlsModel> qt_@(@column.TableName)_qt_@column.LowerColumnName { get; set; }
+@:
+break;
+default:
+    @:/// <summary>
+    @:/// @column.ColumnComment.
+    @:/// </summary>
+    @:public @column.NetType qt_@(@column.TableName)_qt_@column.LowerColumnName { get; set; }
+@:
+break;
+}
+}
+}
+}
+@if(Model.IsFlowId && Model.IsMainTable && (Model.WebType == 3 || Model.Type == 3))
+{
+    @:/// <summary>
+    @:/// 流程引擎ID.
+    @:/// </summary>
+    @:public string @(Model.FlowIdFieldName) { get; set; }
+@:
+}else if(!Model.IsFlowId && Model.IsMainTable && (Model.WebType == 3 || Model.Type == 3))
+{
+    @:/// <summary>
+    @:/// 流程引擎ID.
+    @:/// </summary>
+    @:public string flowId { get; set; }
+@:
+}
+@if(Model.IsMainTable && (Model.WebType == 3 || Model.Type == 3))
+{
+    @:/// <summary>
+    @:/// 流程状态.
+    @:/// </summary>
+    @:public int flowState { get; set; }
+@:
+    @:/// <summary>
+    @:/// 候选人.
+    @:/// </summary>
+    @:public Dictionary<string, List<string>> candidateList { get; set; }
+}
+}

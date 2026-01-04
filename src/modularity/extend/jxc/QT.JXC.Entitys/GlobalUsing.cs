@@ -1,0 +1,16 @@
+﻿global using Microsoft.AspNetCore.Http;
+global using Microsoft.AspNetCore.Mvc;
+global using QT.Common.Filter;
+global using QT.Common.Helper;
+global using QT.Common.Models.NPOI;
+global using QT.Common.Security;
+global using QT.DataEncryption;
+global using QT.DynamicApiController;
+global using QT.Extras.DatabaseAccessor.SqlSugar;
+global using QT.FriendlyException;
+global using SqlSugar;
+global using System;
+global using System.Collections.Generic;
+global using System.Linq;
+global using System.Text;
+global using System.Threading.Tasks;

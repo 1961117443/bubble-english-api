@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<Description>QT 数据库访问器 SqlSugar 插件。</Description>
+		<ImplicitUsings>enable</ImplicitUsings>
+	</PropertyGroup>
+
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+		<DocumentationFile>bin\Debug\$(AssemblyName).xml</DocumentationFile>
+	</PropertyGroup>
+
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+		<DocumentationFile>bin\Release\$(AssemblyName).xml</DocumentationFile>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="sqlSugarCore" Version="5.1.4.175" />
+		<PackageReference Include="SqlSugarCore.Kdbndp" Version="9.3.6.1128" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\QT.Extras.Authentication.JwtBearer\QT.Extras.Authentication.JwtBearer.csproj" />
+	</ItemGroup>
+
+</Project>

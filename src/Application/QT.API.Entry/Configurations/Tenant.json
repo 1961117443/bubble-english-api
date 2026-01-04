@@ -1,0 +1,8 @@
+{
+  "Tenant": {
+    "MultiTenancy": false
+    //"MultiTenancyDBInterFace": "https://erptenant.95033.cn/api/api/Tenant/DbName/",
+    //"UserKey": "536837F2B6764F2895DB6A8F5C8E73C5",
+    //"MultiTenancyHost": "https://erptenant.95033.cn/api" // "https://erptenant.95033.cn/api"
+  }
+}
