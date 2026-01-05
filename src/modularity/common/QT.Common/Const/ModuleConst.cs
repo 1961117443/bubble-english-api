@@ -38,4 +38,9 @@ public class ModuleConst
     /// JZRC.
     /// </summary>
     public const string JZRC = "建筑人才平台";
+
+    /// <summary>
+    /// BubbleEnglish.
+    /// </summary>
+    public const string BubbleEnglish = "泡泡英语";
 }
