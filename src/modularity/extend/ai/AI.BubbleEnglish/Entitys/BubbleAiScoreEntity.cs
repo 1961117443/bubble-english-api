@@ -32,4 +32,3 @@ public class BubbleAiScoreEntity
     [SugarColumn(ColumnDescription = "创建时间")]
     public DateTime CreateTime { get; set; }
 }
-#endregion

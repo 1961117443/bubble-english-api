@@ -1,18 +1,10 @@
-using AI.BubbleEnglish.Dto;
-using AI.BubbleEnglish.Entitys;
-using Microsoft.AspNetCore.Mvc;
-using QT.Common.Core.Manager;
-using QT.DependencyInjection;
-using QT.DynamicApiController;
-using SqlSugar;
-
 namespace AI.BubbleEnglish;
 
 /// <summary>
 /// 权益查询：会员只解锁进阶，主题包单卖
 /// </summary>
-[ApiDescriptionSettings(Tag = "BubbleEnglish", Name = "Entitlements", Order = 1040)]
-[Route("api/BubbleEnglish/[controller]")]
+[ApiDescriptionSettings(ModuleConst.BubbleEnglish, Tag = "BubbleEnglish", Name = "Entitlements", Order = 1040)]
+[Route("api/bubble/client/[controller]")]
 public class BubbleEntitlementsService : IDynamicApiController, ITransient
 {
     private readonly SqlSugarClient _db;
@@ -30,7 +22,7 @@ public class BubbleEntitlementsService : IDynamicApiController, ITransient
     [HttpGet("me")]
     public async Task<EntitlementsOutput> GetMyEntitlements()
     {
-        long uid = _userManager.UserId;
+        string uid = _userManager.UserId;
 
         // 会员：优先读取 bubble_user 的扩展字段（BaseUserId 1:1）
         var profile = await _db.Queryable<BubbleUserEntity>()

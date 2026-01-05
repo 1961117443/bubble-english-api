@@ -22,4 +22,3 @@ public class BubbleSubscriptionPlanEntity
     [SugarColumn(ColumnDescription = "说明")]
     public string Description { get; set; }
 }
-#endregion

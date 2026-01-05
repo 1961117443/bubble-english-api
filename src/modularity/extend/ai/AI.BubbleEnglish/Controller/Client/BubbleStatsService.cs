@@ -1,18 +1,10 @@
-using AI.BubbleEnglish.Dto;
-using AI.BubbleEnglish.Entitys;
-using Microsoft.AspNetCore.Mvc;
-using QT.Common.Core.Manager;
-using QT.DependencyInjection;
-using QT.DynamicApiController;
-using SqlSugar;
-
 namespace AI.BubbleEnglish;
 
 /// <summary>
 /// 学习统计（日/周/月）
 /// </summary>
-[ApiDescriptionSettings(Tag = "BubbleEnglish", Name = "Stats", Order = 1030)]
-[Route("api/BubbleEnglish/[controller]")]
+[ApiDescriptionSettings(ModuleConst.BubbleEnglish, Tag = "BubbleEnglish", Name = "Stats", Order = 1030)]
+[Route("api/bubble/client/[controller]")]
 public class BubbleStatsService : IDynamicApiController, ITransient
 {
     private readonly SqlSugarClient _db;
@@ -56,7 +48,7 @@ public class BubbleStatsService : IDynamicApiController, ITransient
     private async Task<StatsOutput> BuildStats(long childId, string type, DateTime start, DateTime end, string key)
     {
         if (childId <= 0) throw Oops.Oh("childId 无效");
-        long uid = _userManager.UserId;
+        string uid = _userManager.UserId;
 
         bool owned = await _db.Queryable<BubbleChildProfileEntity>()
             .Where(x => x.Id == childId && x.ParentId == uid)

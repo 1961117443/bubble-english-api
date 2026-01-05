@@ -13,7 +13,7 @@ public class BubbleUserEntity
     /// 关联 base_user 主键（1:1）
     /// </summary>
     [SugarColumn(ColumnDescription = "账号ID(base_user.id)")]
-    public long BaseUserId { get; set; }
+    public string BaseUserId { get; set; }
 
     [SugarColumn(ColumnDescription = "微信 OpenId", IsNullable = true)]
     public string? OpenId { get; set; }
@@ -39,4 +39,3 @@ public class BubbleUserEntity
     [SugarColumn(ColumnDescription = "创建时间")]
     public DateTime CreateTime { get; set; }
 }
-#endregion

@@ -23,4 +23,3 @@ public class BubblePaymentRecordEntity
     [SugarColumn(ColumnDescription = "支付时间")]
     public DateTime PayTime { get; set; }
 }
-#endregion

@@ -1,18 +1,10 @@
-using AI.BubbleEnglish.Dto;
-using AI.BubbleEnglish.Entitys;
-using Microsoft.AspNetCore.Mvc;
-using QT.Common.Core.Manager;
-using QT.DependencyInjection;
-using QT.DynamicApiController;
-using SqlSugar;
-
 namespace AI.BubbleEnglish;
 
 /// <summary>
 /// 孩子档案（多孩子）
 /// </summary>
-[ApiDescriptionSettings(Tag = "BubbleEnglish", Name = "Parent", Order = 1010)]
-[Route("api/BubbleEnglish/[controller]")]
+[ApiDescriptionSettings(ModuleConst.BubbleEnglish, Tag = "BubbleEnglish", Name = "Parent", Order = 1010)]
+[Route("api/bubble/client/[controller]")]
 public class BubbleChildService : IDynamicApiController, ITransient
 {
     private readonly SqlSugarClient _db;
@@ -30,7 +22,7 @@ public class BubbleChildService : IDynamicApiController, ITransient
     [HttpGet("children")]
     public async Task<List<ChildOutput>> GetChildren()
     {
-        long uid = _userManager.UserId;
+        string uid = _userManager.UserId;
         var list = await _db.Queryable<BubbleChildProfileEntity>()
             .Where(x => x.ParentId == uid)
             .OrderByDescending(x => x.CreateTime)
@@ -48,7 +40,7 @@ public class BubbleChildService : IDynamicApiController, ITransient
     {
         if (string.IsNullOrWhiteSpace(input.name)) throw Oops.Oh("孩子昵称不能为空");
 
-        long uid = _userManager.UserId;
+        string uid = _userManager.UserId;
         var entity = new BubbleChildProfileEntity
         {
             ParentId = uid,

@@ -12,7 +12,7 @@ public class BubbleLearningRecordEntity
     /// 家长账号ID（base_user.id）
     /// </summary>
     [SugarColumn(ColumnDescription = "家长账号ID(base_user.id)")]
-    public long ParentId { get; set; }
+    public string ParentId { get; set; }
 
     [SugarColumn(IsPrimaryKey = true, IsIdentity = true, ColumnDescription = "记录ID")]
     public long Id { get; set; }
@@ -44,4 +44,3 @@ public class BubbleLearningRecordEntity
     [SugarColumn(ColumnDescription = "学习日期")]
     public DateTime LearnTime { get; set; }
 }
-#endregion

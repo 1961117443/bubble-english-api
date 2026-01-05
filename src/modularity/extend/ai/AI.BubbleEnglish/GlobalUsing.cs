@@ -17,3 +17,6 @@ global using QT.DynamicApiController;
 
 global using AI.BubbleEnglish.Dto;
 global using AI.BubbleEnglish.Entitys;
+
+global using QT.FriendlyException;
+global using QT.Common.Const;

@@ -15,7 +15,7 @@ namespace AI.BubbleEnglish;
 /// - 手机号验证码/微信登录：当前仅占位，建议在 QT.OAuth 扩展实现
 /// </summary>
 [ApiDescriptionSettings(Tag = "BubbleEnglish", Name = "Auth", Order = 1000)]
-[Route("api/BubbleEnglish/[controller]")]
+[Route("api/bubble/client/[controller]")]
 public class BubbleAuthService : IDynamicApiController, ITransient
 {
     private readonly OAuthService _oauth;

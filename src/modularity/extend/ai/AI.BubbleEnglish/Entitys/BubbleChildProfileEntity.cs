@@ -15,7 +15,7 @@ public class BubbleChildProfileEntity
     /// 家长账号ID（复用 base_user 主键，来自 IUserManager.UserId）
     /// </summary>
     [SugarColumn(ColumnDescription = "家长账号ID(base_user.id)")]
-    public long ParentId { get; set; }
+    public string ParentId { get; set; }
 
     [SugarColumn(ColumnDescription = "孩子名称")]
     public string Name { get; set; }
@@ -36,4 +36,3 @@ public class BubbleChildProfileEntity
     [SugarColumn(ColumnDescription = "创建时间")]
     public DateTime CreateTime { get; set; }
 }
-#endregion

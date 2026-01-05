@@ -25,4 +25,3 @@ public class BubbleWordEntity
     [SugarColumn(ColumnDescription = "排序")]
     public int Sort { get; set; }
 }
-#endregion
