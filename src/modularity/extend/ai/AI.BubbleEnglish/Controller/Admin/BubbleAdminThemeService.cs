@@ -14,7 +14,7 @@ public class BubbleAdminThemeService : IDynamicApiController, ITransient
         _db = (SqlSugarClient)context;
     }
 
-    [HttpGet("list")]
+    [HttpGet("")]
     public async Task<List<AdminThemeOutput>> List([FromQuery] string? keyword)
     {
         var q = _db.Queryable<BubbleThemeEntity>();

@@ -17,7 +17,7 @@ public class BubbleAdminAiJobService : IDynamicApiController, ITransient
         _db = (SqlSugarClient)context;
     }
 
-    [HttpGet("list")]
+    [HttpGet("")]
     public async Task<List<AdminAiJobOutput>> List([FromQuery] long? videoId, [FromQuery] string? status)
     {
         var q = _db.Queryable<BubbleAiJobEntity>();

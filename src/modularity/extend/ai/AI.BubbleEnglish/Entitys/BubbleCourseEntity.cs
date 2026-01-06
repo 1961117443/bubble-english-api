@@ -2,14 +2,17 @@
 
 using SqlSugar;
 using System;
-#region 孩子档案
+#region 课程主表
 #endregion
 
-[SugarTable("course", TableDescription = "课程主表")]
+[SugarTable("bubble_course", TableDescription = "课程主表")]
 public class BubbleCourseEntity
 {
     [SugarColumn(IsPrimaryKey = true, IsIdentity = true, ColumnDescription = "课程ID")]
     public long Id { get; set; }
+
+    [SugarColumn(ColumnDescription = "课程唯一key")]
+    public string CourseKey { get; set; }
 
     [SugarColumn(ColumnDescription = "课程名称")]
     public string Title { get; set; }
@@ -19,6 +22,10 @@ public class BubbleCourseEntity
 
     [SugarColumn(ColumnDescription = "课程介绍")]
     public string Description { get; set; }
+
+    [SugarColumn(ColumnDescription = "完整 course v2 JSON")]
+    public string CourseJson { get; set; }
+    
 
     [SugarColumn(ColumnDescription = "排序")]
     public int Sort { get; set; }

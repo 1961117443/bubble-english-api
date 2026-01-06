@@ -1,9 +1,12 @@
+using QT.Common.Filter;
+using System.ComponentModel.DataAnnotations;
+
 namespace AI.BubbleEnglish.Dto;
 
 /// <summary>
 /// 后台：视频
 /// </summary>
-public class AdminVideoQuery
+public class AdminVideoQuery: PageInputBase
 {
     public string? keyword { get; set; }
     public string? themeKey { get; set; }
@@ -12,8 +15,11 @@ public class AdminVideoQuery
 
 public class AdminVideoCreateInput
 {
+    [Required(ErrorMessage = "标题不能为空")]
     public string title { get; set; } = string.Empty;
     public string themeKey { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "fileUrl不能为空")]
     public string fileUrl { get; set; } = string.Empty;
     public string coverUrl { get; set; } = string.Empty;
     public int durationSec { get; set; } = 0;
@@ -27,7 +33,7 @@ public class AdminVideoUpdateInput : AdminVideoCreateInput
 
 public class AdminVideoOutput
 {
-    public long id { get; set; }
+    public string id { get; set; }
     public string title { get; set; } = string.Empty;
     public string themeKey { get; set; } = string.Empty;
     public string fileUrl { get; set; } = string.Empty;
@@ -58,7 +64,7 @@ public class AdminAiJobOutput
 
 public class AdminAiAnalyzeInput
 {
-    public long videoId { get; set; }
+    public string videoId { get; set; }
     public string? model { get; set; }
     public string? prompt { get; set; }
 }

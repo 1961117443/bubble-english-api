@@ -33,8 +33,8 @@ public class BubbleUserEntity
     [SugarColumn(ColumnDescription = "会员到期时间", IsNullable = true)]
     public DateTime? VipExpiredAt { get; set; }
 
-    [SugarColumn(ColumnDescription = "是否后台管理员 0否 1是")]
-    public int IsAdmin { get; set; }
+    //[SugarColumn(ColumnDescription = "是否后台管理员 0否 1是")]
+    //public int IsAdmin { get; set; }
 
     [SugarColumn(ColumnDescription = "创建时间")]
     public DateTime CreateTime { get; set; }

@@ -1,5 +1,6 @@
 namespace AI.BubbleEnglish.Entitys;
 
+using QT.Common.Contracts;
 using SqlSugar;
 using System;
 
@@ -7,18 +8,35 @@ using System;
 /// 视频资源（后台上传）
 /// </summary>
 [SugarTable("bubble_video", TableDescription = "Bubble 视频库")]
-public class BubbleVideoEntity
+public class BubbleVideoEntity :EntityBase<string>
 {
-    [SugarColumn(IsPrimaryKey = true, IsIdentity = true, ColumnDescription = "视频ID")]
-    public long Id { get; set; }
+    [SugarColumn(IsPrimaryKey = true, ColumnDescription = "视频ID")]
+    public override string Id { get; set; }
 
-    public string Title { get; set; } = string.Empty;
-    public string ThemeKey { get; set; } = string.Empty;
-    public string FileUrl { get; set; } = string.Empty;
-    public string CoverUrl { get; set; } = string.Empty;
+    [SugarColumn(ColumnDescription = "视频标题")]
+    public string Title { get; set; }
+
+    [SugarColumn(ColumnDescription = "主题 Key")]
+    public string ThemeKey { get; set; }
+
+    [SugarColumn(ColumnDescription = "视频文件地址")]
+    public string FileUrl { get; set; }
+
+    [SugarColumn(ColumnDescription = "封面地址")]
+    public string CoverUrl { get; set; }
+
+    [SugarColumn(ColumnDescription = "时长（秒）")]
     public int DurationSec { get; set; }
-    public string Status { get; set; } = "uploaded"; // uploaded/analyzing/done/failed
+
+    [SugarColumn(ColumnDescription = "状态：uploaded/analyzing/done/failed")]
+    public string Status { get; set; } // uploaded/analyzing/done/failed
+
+    [SugarColumn(ColumnDescription = "分析作业ID")]
     public long? AnalyzeJobId { get; set; }
-    public DateTime CreateTime { get; set; } = DateTime.Now;
-    public DateTime UpdateTime { get; set; } = DateTime.Now;
+
+    [SugarColumn(ColumnDescription = "创建时间")]
+    public DateTime CreateTime { get; set; }
+
+    [SugarColumn(ColumnDescription = "更新时间")]
+    public DateTime UpdateTime { get; set; }
 }

@@ -16,7 +16,7 @@ public class BubbleAdminUnitService : IDynamicApiController, ITransient
         _db = (SqlSugarClient)context;
     }
 
-    [HttpGet("list")]
+    [HttpGet("")]
     public async Task<List<AdminUnitOutput>> List([FromQuery] AdminUnitQuery query)
     {
         var q = _db.Queryable<BubbleUnitEntity>();
