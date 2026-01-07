@@ -41,9 +41,12 @@ public class BubbleAdminVideoService : QTBaseService<BubbleVideoEntity, AdminVid
         {
             VideoId = v.Id,
             Status = "queued",
+            Provider = string.IsNullOrWhiteSpace(input.provider) ? null : input.provider.Trim(),
             Model = (input.model ?? string.Empty).Trim(),
             Prompt = (input.prompt ?? string.Empty).Trim(),
-            CreateTime = DateTime.Now
+            CreateTime = DateTime.Now,
+            OutputJson = string.Empty,
+            ErrorMessage = string.Empty
         };
         var jobId = await _repository.Context.Insertable(job).ExecuteReturnIdentityAsync();
         job.Id = jobId;

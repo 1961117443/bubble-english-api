@@ -3,6 +3,7 @@
 		<!-- 主项目输出路径，可根据自己项目结构修改 -->
 		<PropertyGroup>
 				<MainProjectOutputDir>$(SolutionDir)Application\QT.API.Entry\bin\$(Configuration)\$(TargetFramework)\</MainProjectOutputDir>
+				<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 		</PropertyGroup>
 
 		<!-- 构建完成后复制dll到主项目的 plugins 文件夹 -->

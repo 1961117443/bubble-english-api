@@ -18,10 +18,10 @@ public class BubbleAdminAiJobService : IDynamicApiController, ITransient
     }
 
     [HttpGet("")]
-    public async Task<List<AdminAiJobOutput>> List([FromQuery] long? videoId, [FromQuery] string? status)
+    public async Task<List<AdminAiJobOutput>> List([FromQuery] string? videoId, [FromQuery] string? status)
     {
         var q = _db.Queryable<BubbleAiJobEntity>();
-        if (videoId.HasValue && videoId.Value > 0) q = q.Where(x => x.VideoId == videoId.Value);
+        if (!string.IsNullOrEmpty(videoId)) q = q.Where(x => x.VideoId == videoId);
         if (!string.IsNullOrWhiteSpace(status)) q = q.Where(x => x.Status == status!.Trim());
         var list = await q.OrderByDescending(x => x.Id).ToListAsync();
         return list.Select(ToOutput).ToList();

@@ -20,3 +20,9 @@ global using AI.BubbleEnglish.Entitys;
 
 global using QT.FriendlyException;
 global using QT.Common.Const;
+
+
+
+global using Quartz;
+global using Quartz.Impl;
+global using Quartz.Spi;

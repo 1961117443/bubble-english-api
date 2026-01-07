@@ -31,6 +31,24 @@ public class BubbleVideoEntity :EntityBase<string>
     [SugarColumn(ColumnDescription = "状态：uploaded/analyzing/done/failed")]
     public string Status { get; set; } // uploaded/analyzing/done/failed
 
+    [SugarColumn(ColumnDescription = "本地文件路径（服务器绝对路径）", IsNullable = true)]
+    public string? LocalPath { get; set; }
+
+    [SugarColumn(ColumnDescription = "工作目录（存放派生文件）", IsNullable = true)]
+    public string? WorkDir { get; set; }
+
+    [SugarColumn(ColumnDescription = "可供AI分析的源文本（字幕/ASR/人工）", IsNullable = true)]
+    public string? SourceText { get; set; }
+
+    [SugarColumn(ColumnDescription = "源文本类型：subtitle/asr/manual/none", IsNullable = true)]
+    public string? SourceTextType { get; set; }
+
+    [SugarColumn(ColumnDescription = "源文本语言：en/zh/mix", IsNullable = true)]
+    public string? SourceTextLang { get; set; }
+
+    [SugarColumn(ColumnDescription = "最近错误信息", IsNullable = true)]
+    public string? LastError { get; set; }
+
     [SugarColumn(ColumnDescription = "分析作业ID")]
     public long? AnalyzeJobId { get; set; }
 

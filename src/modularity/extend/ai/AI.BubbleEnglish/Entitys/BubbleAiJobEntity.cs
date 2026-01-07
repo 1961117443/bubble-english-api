@@ -21,8 +21,20 @@ public class BubbleAiJobEntity
     [SugarColumn(ColumnDescription = "使用模型")]
     public string Model { get; set; }
 
+    [SugarColumn(ColumnDescription = "供应商：openai/deepseek/qianfan", IsNullable = true)]
+    public string? Provider { get; set; }
+
+    [SugarColumn(ColumnDescription = "Prompt模板Key", IsNullable = true)]
+    public string? PromptTemplateKey { get; set; }
+
+    [SugarColumn(ColumnDescription = "Prompt模板版本", IsNullable = true)]
+    public int? PromptVersion { get; set; }
+
     [SugarColumn(ColumnDescription = "提示词/Prompt")]
     public string Prompt { get; set; }
+
+    [SugarColumn(ColumnDescription = "Prompt快照（渲染后，用于回放）", IsNullable = true)]
+    public string? PromptSnapshot { get; set; }
 
     [SugarColumn(ColumnDescription = "输出 JSON")]
     public string OutputJson { get; set; }

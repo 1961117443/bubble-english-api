@@ -51,7 +51,7 @@ public class AdminVideoOutput
 public class AdminAiJobOutput
 {
     public long id { get; set; }
-    public long videoId { get; set; }
+    public string videoId { get; set; }
     public string status { get; set; } = string.Empty;
     public string model { get; set; } = string.Empty;
     public string prompt { get; set; } = string.Empty;
@@ -65,6 +65,8 @@ public class AdminAiJobOutput
 public class AdminAiAnalyzeInput
 {
     public string videoId { get; set; }
+    /// <summary>AI供应商：openai/deepseek/qianfan</summary>
+    public string? provider { get; set; }
     public string? model { get; set; }
     public string? prompt { get; set; }
 }

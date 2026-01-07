@@ -1,0 +1,35 @@
+{
+  "Bubble": {
+    "Storage": {
+      "Root": "D:\\bubble-storage",
+      "PublicPrefix": "/bubble/videos"
+    },
+    "Tools": {
+      "FfmpegPath": "ffmpeg",
+      "WhisperCliPath": "whisper-cli",
+      "WhisperModelPath": "D:\\models\\ggml-large-v3.bin",
+      "WhisperThreads": 4,
+      "WhisperLanguage": "en",
+      "PiperPath": "piper",
+      "PiperVoiceModelPath": "D:\\piper\\en_US-lessac-medium.onnx"
+    },
+    "AI": {
+      "DefaultProvider": "openai",
+      "OpenAi": {
+        "BaseUrl": "https://api.openai.com",
+        "ApiKey": "xxx",
+        "DefaultModel": "gpt-4o-mini"
+      },
+      "DeepSeek": {
+        "BaseUrl": "https://api.deepseek.com",
+        "ApiKey": "xxx",
+        "DefaultModel": "deepseek-chat"
+      },
+      "Qianfan": {
+        "ApiKey": "xxx",
+        "SecretKey": "xxx",
+        "DefaultModelEndpoint": "ernie-bot-4"
+      }
+    }
+  }
+}
