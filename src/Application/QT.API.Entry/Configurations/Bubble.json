@@ -5,13 +5,13 @@
       "PublicPrefix": "/bubble/videos"
     },
     "Tools": {
-      "FfmpegPath": "ffmpeg",
-      "WhisperCliPath": "whisper-cli",
-      "WhisperModelPath": "D:\\models\\ggml-large-v3.bin",
+      "FfmpegPath": "E:\bubble-tools\ffmpeg\bin\\ffmpeg.exe",
+      "WhisperCliPath": "E:\\bubble-tools\\whisper\\whisper-cli.exe",
+      "WhisperModelPath": "E:\\bubble-tools\\whisper\\models\\ggml-base.bin",
       "WhisperThreads": 4,
       "WhisperLanguage": "en",
-      "PiperPath": "piper",
-      "PiperVoiceModelPath": "D:\\piper\\en_US-lessac-medium.onnx"
+      "PiperPath": "E:\\bubble-tools\\piper\\piper.exe",
+      "PiperVoiceModelPath": "E:\\bubble-tools\\piper\\voices\\en_US-lessac-medium.onnx"
     },
     "AI": {
       "DefaultProvider": "openai",
