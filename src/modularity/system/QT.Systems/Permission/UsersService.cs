@@ -194,7 +194,7 @@ public class UsersService : IUsersService, IDynamicApiController, ITransient
             var quer = _repository.Context.Queryable<UserRelationEntity, UserEntity>((a, b) => new JoinQueryInfos(JoinType.Inner, b.Id == a.UserId))
                 .Where((a, b) => childOrgIds.Contains(a.ObjectId))
                 .WhereIF(!pageInput.keyword.IsNullOrEmpty(), (a, b) => b.Account.Contains(pageInput.keyword) || b.RealName.Contains(pageInput.keyword))
-                .WhereIF(input.hideCustomer, (a, b) => SqlFunc.Subqueryable<ErpCustomer>().AS("erp_customer").Where(xxx => (xxx.F_LoginId == b.Account || xxx.F_Admintel == b.Account)).NotAny())
+                //.WhereIF(input.hideCustomer, (a, b) => SqlFunc.Subqueryable<ErpCustomer>().AS("erp_customer").Where(xxx => (xxx.F_LoginId == b.Account || xxx.F_Admintel == b.Account)).NotAny())
                 .Where((a, b) => b.DeleteMark == null)
                 .Select((a, b) => new UserListOutput
                 {
@@ -232,7 +232,7 @@ public class UsersService : IUsersService, IDynamicApiController, ITransient
         {
             data = await _repository.Context.Queryable<UserEntity>()
                 .WhereIF(!pageInput.keyword.IsNullOrEmpty(), a => a.Account.Contains(pageInput.keyword) || a.RealName.Contains(pageInput.keyword))
-                .WhereIF(input.hideCustomer, (a) => SqlFunc.Subqueryable<ErpCustomer>().AS("erp_customer").Where(xxx => (xxx.F_LoginId == a.Account || xxx.F_Admintel == a.Account)).NotAny())
+                //.WhereIF(input.hideCustomer, (a) => SqlFunc.Subqueryable<ErpCustomer>().AS("erp_customer").Where(xxx => (xxx.F_LoginId == a.Account || xxx.F_Admintel == a.Account)).NotAny())
                 .Where(a => a.DeleteMark == null)
                 // 非超级管理员，不显示sysadmin账号
                 .WhereIF(_userManager.Account != CommonConst.SUPPER_ADMIN_ACCOUNT, x => x.Account != CommonConst.SUPPER_ADMIN_ACCOUNT)
