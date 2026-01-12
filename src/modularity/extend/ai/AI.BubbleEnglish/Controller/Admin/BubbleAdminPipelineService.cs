@@ -92,14 +92,27 @@ public class BubbleAdminPipelineService : IDynamicApiController, ITransient
         var v = await _db.Queryable<BubbleVideoEntity>().SingleAsync(x => x.Id == input.videoId);
         if (v == null) throw Oops.Oh("视频不存在");
 
-        if (string.IsNullOrWhiteSpace(v.SourceText))
+        // 先创建 AI Job（不直接触发 AiAnalyzeJob），交给 PipelineRunJob 串行推进
+        var job = new BubbleAiJobEntity
         {
-            await _enqueue.EnqueueAsrAsync(v.Id);
-        }
+            VideoId = v.Id,
+            Status = "queued",
+            Provider = string.IsNullOrWhiteSpace(input.provider) ? null : input.provider.Trim(),
+            Model = (input.model ?? string.Empty).Trim(),
+            Prompt = (input.prompt ?? string.Empty).Trim(),
+            CreateTime = DateTime.Now,
+            OutputJson = string.Empty,
+            ErrorMessage = string.Empty
+        };
+        var jobId = await _db.Insertable(job).ExecuteReturnIdentityAsync();
 
-        var ai = await EnqueueAi(input);
-        await _enqueue.EnqueueUnitAudioAsync(v.Id);
-        return ai;
+        v.Status = "analyzing";
+        v.AnalyzeJobId = jobId;
+        v.UpdateTime = DateTime.Now;
+        await _db.Updateable(v).UpdateColumns(x => new { x.Status, x.AnalyzeJobId, x.UpdateTime }).ExecuteCommandAsync();
+
+        await _enqueue.EnqueuePipelineRunAsync(v.Id, jobId);
+        return new { ok = true, jobId };
     }
 }
 

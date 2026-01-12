@@ -40,9 +40,10 @@ public static class BubbleEnglishModule
         services.AddQuartz(q =>
         {
             q.UseMicrosoftDependencyInjectionJobFactory();
-            q.AddJob<AsrTranscribeJob>(opts => opts.WithIdentity(AsrTranscribeJob.JobKeyName));
-            q.AddJob<AiAnalyzeJob>(opts => opts.WithIdentity(AiAnalyzeJob.JobKeyName));
-            q.AddJob<UnitAudioJob>(opts => opts.WithIdentity(UnitAudioJob.JobKeyName));
+            q.AddJob<AsrTranscribeJob>(opts => opts.WithIdentity(AsrTranscribeJob.JobKeyName).StoreDurably());
+            q.AddJob<AiAnalyzeJob>(opts => opts.WithIdentity(AiAnalyzeJob.JobKeyName).StoreDurably());
+            q.AddJob<UnitAudioJob>(opts => opts.WithIdentity(UnitAudioJob.JobKeyName).StoreDurably());
+            q.AddJob<PipelineRunJob>(opts => opts.WithIdentity(PipelineRunJob.JobKeyName).StoreDurably());
         });
         services.AddQuartzHostedService(o => o.WaitForJobsToComplete = true);
 
@@ -58,6 +59,7 @@ public interface IBubbleQuartzEnqueue
     Task EnqueueAsrAsync(string videoId, CancellationToken ct = default);
     Task EnqueueAiAnalyzeAsync(long aiJobId, CancellationToken ct = default);
     Task EnqueueUnitAudioAsync(string videoId, CancellationToken ct = default);
+    Task EnqueuePipelineRunAsync(string videoId, long? aiJobId = null, CancellationToken ct = default);
 }
 
 internal class BubbleQuartzEnqueue : IBubbleQuartzEnqueue
@@ -73,6 +75,13 @@ internal class BubbleQuartzEnqueue : IBubbleQuartzEnqueue
 
     public Task EnqueueUnitAudioAsync(string videoId, CancellationToken ct = default)
         => EnqueueAsync(UnitAudioJob.JobKeyName, new JobDataMap { { "videoId", videoId } }, ct);
+
+    public Task EnqueuePipelineRunAsync(string videoId, long? aiJobId = null, CancellationToken ct = default)
+    {
+        var map = new JobDataMap { { "videoId", videoId } };
+        if (aiJobId.HasValue) map["aiJobId"] = aiJobId.Value;
+        return EnqueueAsync(PipelineRunJob.JobKeyName, map, ct);
+    }
 
     private async Task EnqueueAsync(string baseJobKey, JobDataMap data, CancellationToken ct)
     {
@@ -98,6 +107,7 @@ internal class BubbleQuartzEnqueue : IBubbleQuartzEnqueue
             var k when k == AsrTranscribeJob.JobKeyName => typeof(AsrTranscribeJob).AssemblyQualifiedName!,
             var k when k == AiAnalyzeJob.JobKeyName => typeof(AiAnalyzeJob).AssemblyQualifiedName!,
             var k when k == UnitAudioJob.JobKeyName => typeof(UnitAudioJob).AssemblyQualifiedName!,
+            var k when k == PipelineRunJob.JobKeyName => typeof(PipelineRunJob).AssemblyQualifiedName!,
             _ => throw new InvalidOperationException("Unknown job key")
         };
     }

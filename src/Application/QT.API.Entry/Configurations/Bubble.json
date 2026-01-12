@@ -5,7 +5,7 @@
       "PublicPrefix": "/bubble/videos"
     },
     "Tools": {
-      "FfmpegPath": "E:\bubble-tools\ffmpeg\bin\\ffmpeg.exe",
+      "FfmpegPath": "E:\\bubble-tools\\ffmpeg\\bin\\ffmpeg.exe",
       "WhisperCliPath": "E:\\bubble-tools\\whisper\\whisper-cli.exe",
       "WhisperModelPath": "E:\\bubble-tools\\whisper\\models\\ggml-base.bin",
       "WhisperThreads": 4,
