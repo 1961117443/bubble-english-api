@@ -1,49 +1,4 @@
-using QT.Common.Filter;
-using System.ComponentModel.DataAnnotations;
-
 namespace AI.BubbleEnglish.Dto;
-
-/// <summary>
-/// 后台：视频
-/// </summary>
-public class AdminVideoQuery: PageInputBase
-{
-    public string? keyword { get; set; }
-    public string? themeKey { get; set; }
-    public string? status { get; set; }
-}
-
-public class AdminVideoCreateInput
-{
-    [Required(ErrorMessage = "标题不能为空")]
-    public string title { get; set; } = string.Empty;
-    public string themeKey { get; set; } = string.Empty;
-
-    [Required(ErrorMessage = "fileUrl不能为空")]
-    public string fileUrl { get; set; } = string.Empty;
-    public string coverUrl { get; set; } = string.Empty;
-    public int durationSec { get; set; } = 0;
-}
-
-public class AdminVideoUpdateInput : AdminVideoCreateInput
-{
-    public long id { get; set; }
-    public string? status { get; set; }
-}
-
-public class AdminVideoOutput
-{
-    public string id { get; set; }
-    public string title { get; set; } = string.Empty;
-    public string themeKey { get; set; } = string.Empty;
-    public string fileUrl { get; set; } = string.Empty;
-    public string coverUrl { get; set; } = string.Empty;
-    public int durationSec { get; set; }
-    public string status { get; set; } = string.Empty;
-    public long? analyzeJobId { get; set; }
-    public DateTime createTime { get; set; }
-    public DateTime updateTime { get; set; }
-}
 
 /// <summary>
 /// 后台：AI Job
@@ -60,15 +15,6 @@ public class AdminAiJobOutput
     public DateTime? startedAt { get; set; }
     public DateTime? finishedAt { get; set; }
     public DateTime createTime { get; set; }
-}
-
-public class AdminAiAnalyzeInput
-{
-    public string videoId { get; set; }
-    /// <summary>AI供应商：openai/deepseek/qianfan</summary>
-    public string? provider { get; set; }
-    public string? model { get; set; }
-    public string? prompt { get; set; }
 }
 
 /// <summary>
@@ -167,3 +113,4 @@ public class AdminCourseOutput
     public int isPublish { get; set; }
     public DateTime createTime { get; set; }
 }
+
