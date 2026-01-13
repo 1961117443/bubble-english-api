@@ -51,11 +51,8 @@ public class UnitAudioJob : IJob
 
         try
         {
-            long? vidLong = null;
-            if (long.TryParse(videoId, out var tmp)) vidLong = tmp;
-
             var unitsQ = _db.Queryable<BubbleUnitEntity>();
-            if (vidLong.HasValue) unitsQ = unitsQ.Where(x => x.VideoId == vidLong.Value);
+            if (!string.IsNullOrWhiteSpace(videoId)) unitsQ = unitsQ.Where(x => x.VideoId == videoId);
             var units = await unitsQ.ToListAsync();
 
             var derivedDir = _storage.GetDerivedDir(videoId, v.CreateTime);

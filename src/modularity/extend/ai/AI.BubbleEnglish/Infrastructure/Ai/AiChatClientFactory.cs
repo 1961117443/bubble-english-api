@@ -3,6 +3,7 @@ namespace AI.BubbleEnglish.Infrastructure.Ai;
 using AI.BubbleEnglish.Infrastructure.Options;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
+using QT.Common.Extension;
 
 public class AiChatClientFactory : IAiChatClientFactory
 {
@@ -19,7 +20,12 @@ public class AiChatClientFactory : IAiChatClientFactory
 
     public IAiChatClient Get(string? providerKey)
     {
-        var key = (providerKey ?? _opt.DefaultProvider ?? "openai").Trim().ToLowerInvariant();
+        var key = providerKey;
+        if (key.IsNullOrEmpty())
+        {
+            key = _opt.DefaultProvider ?? "openai";
+        }
+        key = key.Trim().ToLowerInvariant();
         var http = _httpFactory.CreateClient($"bubble-ai-{key}");
 
         return key switch

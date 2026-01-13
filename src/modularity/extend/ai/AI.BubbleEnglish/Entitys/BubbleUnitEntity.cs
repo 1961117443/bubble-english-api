@@ -9,11 +9,11 @@ using System;
 [SugarTable("bubble_unit", TableDescription = "Bubble Unit 素材池")]
 public class BubbleUnitEntity
 {
-    [SugarColumn(IsPrimaryKey = true, IsIdentity = true, ColumnDescription = "UnitID")]
-    public long Id { get; set; }
+    [SugarColumn(IsPrimaryKey = true,  ColumnDescription = "UnitID")]
+    public string Id { get; set; }
 
     [SugarColumn(ColumnDescription = "关联视频ID")]
-    public long? VideoId { get; set; }
+    public string? VideoId { get; set; }
 
     [SugarColumn(ColumnDescription = "Unit 类型：word/sentence/knowledge")]
     public string UnitType { get; set; } // word/sentence/knowledge

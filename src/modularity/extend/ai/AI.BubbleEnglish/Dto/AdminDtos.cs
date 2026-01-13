@@ -76,7 +76,7 @@ public class AdminAiAnalyzeInput
 /// </summary>
 public class AdminUnitQuery
 {
-    public long? videoId { get; set; }
+    public string? videoId { get; set; }
     public string? unitType { get; set; }
     public string? status { get; set; }
     public string? keyword { get; set; }
@@ -84,8 +84,8 @@ public class AdminUnitQuery
 
 public class AdminUnitUpsertInput
 {
-    public long? id { get; set; }
-    public long? videoId { get; set; }
+    public string? id { get; set; }
+    public string? videoId { get; set; }
     public string unitType { get; set; } = "word";
     public string text { get; set; } = string.Empty;
     public string meaning { get; set; } = string.Empty;
@@ -97,8 +97,8 @@ public class AdminUnitUpsertInput
 
 public class AdminUnitOutput
 {
-    public long id { get; set; }
-    public long? videoId { get; set; }
+    public string id { get; set; } = string.Empty;
+    public string? videoId { get; set; }
     public string unitType { get; set; } = string.Empty;
     public string text { get; set; } = string.Empty;
     public string meaning { get; set; } = string.Empty;

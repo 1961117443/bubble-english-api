@@ -2,8 +2,10 @@
 
 namespace AI.BubbleEnglish;
 
+using QT.Common.Core.Security;
+
 /// <summary>
-/// ÂêéÂè∞ÔºöUnit Á¥†ÊùêÊ±†ÁÆ°ÁêÜ
+///∫ÛÃ®£∫Unit Àÿ≤ƒ≥ÿπ‹¿Ì
 /// </summary>
 [ApiDescriptionSettings(ModuleConst.BubbleEnglish, Tag = "BubbleAdmin", Name = "Unit", Order = 2030)]
 [Route("api/bubble/admin/[controller]")]
@@ -20,8 +22,11 @@ public class BubbleAdminUnitService : IDynamicApiController, ITransient
     public async Task<List<AdminUnitOutput>> List([FromQuery] AdminUnitQuery query)
     {
         var q = _db.Queryable<BubbleUnitEntity>();
-        if (query.videoId.HasValue && query.videoId.Value > 0)
-            q = q.Where(x => x.VideoId == query.videoId.Value);
+        if (!string.IsNullOrWhiteSpace(query.videoId))
+        {
+            var vid = query.videoId.Trim();
+            q = q.Where(x => x.VideoId == vid);
+        }
         if (!string.IsNullOrWhiteSpace(query.unitType))
             q = q.Where(x => x.UnitType == query.unitType!.Trim());
         if (!string.IsNullOrWhiteSpace(query.status))
@@ -37,29 +42,30 @@ public class BubbleAdminUnitService : IDynamicApiController, ITransient
     }
 
     [HttpGet("detail")]
-    public async Task<AdminUnitOutput> Detail([FromQuery] long id)
+    public async Task<AdminUnitOutput> Detail([FromQuery] string id)
     {
         var e = await _db.Queryable<BubbleUnitEntity>().SingleAsync(x => x.Id == id);
-        if (e == null) throw Oops.Oh("unit‰∏çÂ≠òÂú®");
+        if (e == null) throw Oops.Oh("unit≤ª¥Ê‘⁄");
         return ToOutput(e);
     }
 
     /// <summary>
-    /// Êñ∞Â¢û/Êõ¥Êñ∞
+    /// –¬‘ˆ/∏¸–¬
     /// </summary>
     [HttpPost("upsert")]
     [Consumes("application/json")]
     public async Task<AdminUnitOutput> Upsert([FromBody] AdminUnitUpsertInput input)
     {
-        if (string.IsNullOrWhiteSpace(input.text)) throw Oops.Oh("text‰∏çËÉΩ‰∏∫Á©∫");
-        if (string.IsNullOrWhiteSpace(input.unitType)) throw Oops.Oh("unitType‰∏çËÉΩ‰∏∫Á©∫");
+        if (string.IsNullOrWhiteSpace(input.text)) throw Oops.Oh("text≤ªƒ‹Œ™ø’");
+        if (string.IsNullOrWhiteSpace(input.unitType)) throw Oops.Oh("unitType≤ªƒ‹Œ™ø’");
 
-        if (input.id.HasValue && input.id.Value > 0)
+        if (!string.IsNullOrWhiteSpace(input.id))
         {
-            var e = await _db.Queryable<BubbleUnitEntity>().SingleAsync(x => x.Id == input.id.Value);
-            if (e == null) throw Oops.Oh("unit‰∏çÂ≠òÂú®");
+            var id = input.id.Trim();
+            var e = await _db.Queryable<BubbleUnitEntity>().SingleAsync(x => x.Id == id);
+            if (e == null) throw Oops.Oh("unit≤ª¥Ê‘⁄");
 
-            e.VideoId = input.videoId;
+            e.VideoId = string.IsNullOrWhiteSpace(input.videoId) ? null : input.videoId.Trim();
             e.UnitType = input.unitType.Trim();
             e.Text = input.text.Trim();
             e.Meaning = (input.meaning ?? string.Empty).Trim();
@@ -76,7 +82,8 @@ public class BubbleAdminUnitService : IDynamicApiController, ITransient
         {
             var e = new BubbleUnitEntity
             {
-                VideoId = input.videoId,
+                Id = SnowflakeIdHelper.NextId(),
+                VideoId = string.IsNullOrWhiteSpace(input.videoId) ? null : input.videoId.Trim(),
                 UnitType = input.unitType.Trim(),
                 Text = input.text.Trim(),
                 Meaning = (input.meaning ?? string.Empty).Trim(),
@@ -87,8 +94,7 @@ public class BubbleAdminUnitService : IDynamicApiController, ITransient
                 CreateTime = DateTime.Now,
                 UpdateTime = DateTime.Now
             };
-            var id = await _db.Insertable(e).ExecuteReturnIdentityAsync();
-            e.Id = id;
+            await _db.Insertable(e).ExecuteCommandAsync();
             return ToOutput(e);
         }
     }
@@ -97,8 +103,8 @@ public class BubbleAdminUnitService : IDynamicApiController, ITransient
     [Consumes("application/json")]
     public async Task<dynamic> Delete([FromBody] dynamic body)
     {
-        long id = (long)(body?.id ?? 0);
-        if (id <= 0) throw Oops.Oh("idÊó†Êïà");
+        string id = (string)(body?.id ?? "");
+        if (string.IsNullOrWhiteSpace(id)) throw Oops.Oh("idÊó†Êïà");
         await _db.Deleteable<BubbleUnitEntity>().Where(x => x.Id == id).ExecuteCommandAsync();
         return new { ok = true };
     }
@@ -119,3 +125,4 @@ public class BubbleAdminUnitService : IDynamicApiController, ITransient
             updateTime = e.UpdateTime
         };
 }
+

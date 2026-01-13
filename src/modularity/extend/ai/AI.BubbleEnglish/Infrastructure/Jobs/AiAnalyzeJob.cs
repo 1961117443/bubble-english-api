@@ -4,6 +4,7 @@ using AI.BubbleEnglish.Entitys;
 using AI.BubbleEnglish.Infrastructure.Ai;
 using AI.BubbleEnglish.Infrastructure.Storage;
 using global::Quartz;
+using QT.Common.Core.Security;
 using QT.Common.Extension;
 using Quartz;
 using SqlSugar;
@@ -70,8 +71,8 @@ public class AiAnalyzeJob : IJob
             var parsed = ParseAiOutput(res.Content);
 
             // Units: insert for this video
-            long? vidLong = null;
-            if (long.TryParse(v.Id, out var tmp)) vidLong = tmp;
+            //long? vidLong = null;
+            //if (long.TryParse(v.Id, out var tmp)) vidLong = tmp;
 
             // naive insert (first version). If repeated, allow duplicates by design for audit.
             var now = DateTime.Now;
@@ -80,7 +81,8 @@ public class AiAnalyzeJob : IJob
             {
                 unitsToInsert.Add(new BubbleUnitEntity
                 {
-                    VideoId = vidLong,
+                    Id = SnowflakeIdHelper.NextId(),
+                    VideoId = v.Id,
                     UnitType = "word",
                     Text = w.Text,
                     Meaning = w.Meaning ?? string.Empty,
@@ -96,7 +98,8 @@ public class AiAnalyzeJob : IJob
             {
                 unitsToInsert.Add(new BubbleUnitEntity
                 {
-                    VideoId = vidLong,
+                    Id = SnowflakeIdHelper.NextId(),
+                    VideoId = v.Id,
                     UnitType = "sentence",
                     Text = s.Text,
                     Meaning = s.Meaning ?? string.Empty,

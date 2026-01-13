@@ -14,7 +14,7 @@
       "PiperVoiceModelPath": "E:\\bubble-tools\\piper\\voices\\en_US-lessac-medium.onnx"
     },
     "AI": {
-      "DefaultProvider": "openai",
+      "DefaultProvider": "deepseek",
       "OpenAi": {
         "BaseUrl": "https://api.openai.com",
         "ApiKey": "xxx",
@@ -22,7 +22,7 @@
       },
       "DeepSeek": {
         "BaseUrl": "https://api.deepseek.com",
-        "ApiKey": "xxx",
+        "ApiKey": "sk-ee2338f6bade4da2a58a3d5b9c789b5a",
         "DefaultModel": "deepseek-chat"
       },
       "Qianfan": {
