@@ -48,6 +48,7 @@ public class BubbleAdminVideoService : QTBaseService<BubbleVideoEntity, AdminVid
 
         var job = new BubbleAiJobEntity
         {
+            Id = SnowflakeIdHelper.NextId(),
             VideoId = v.Id,
             Status = "queued",
             Provider = string.IsNullOrWhiteSpace(input.provider) ? null : input.provider.Trim(),
@@ -57,8 +58,8 @@ public class BubbleAdminVideoService : QTBaseService<BubbleVideoEntity, AdminVid
             OutputJson = string.Empty,
             ErrorMessage = string.Empty
         };
-        var jobId = await _repository.Context.Insertable(job).ExecuteReturnIdentityAsync();
-        job.Id = jobId;
+        await _repository.Context.Insertable(job).ExecuteCommandAsync();
+        var jobId = job.Id;
 
         v.Status = "analyzing";
         v.AnalyzeJobId = jobId;

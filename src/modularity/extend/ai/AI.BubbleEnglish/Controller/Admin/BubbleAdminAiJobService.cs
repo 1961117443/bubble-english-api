@@ -1,5 +1,6 @@
 
 using QT.Common.Const;
+using QT.Common.Extension;
 
 namespace AI.BubbleEnglish;
 
@@ -28,7 +29,7 @@ public class BubbleAdminAiJobService : IDynamicApiController, ITransient
     }
 
     [HttpGet("detail")]
-    public async Task<AdminAiJobOutput> Detail([FromQuery] long id)
+    public async Task<AdminAiJobOutput> Detail([FromQuery] string id)
     {
         var e = await _db.Queryable<BubbleAiJobEntity>().SingleAsync(x => x.Id == id);
         if (e == null) throw Oops.Oh("任务不存在");
@@ -42,8 +43,8 @@ public class BubbleAdminAiJobService : IDynamicApiController, ITransient
     [Consumes("application/json")]
     public async Task<dynamic> Retry([FromBody] dynamic body)
     {
-        long id = (long)(body?.id ?? 0);
-        if (id <= 0) throw Oops.Oh("id无效");
+        string id = (string)(body?.id ?? "");
+        if (id.IsNullOrEmpty()) throw Oops.Oh("id无效");
         var e = await _db.Queryable<BubbleAiJobEntity>().SingleAsync(x => x.Id == id);
         if (e == null) throw Oops.Oh("任务不存在");
 

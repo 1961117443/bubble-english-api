@@ -11,6 +11,7 @@ using AI.BubbleEnglish.Infrastructure.Tts;
 using global::Quartz;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using QT.Common.Extension;
 using Quartz;
 
 public static class BubbleEnglishModule
@@ -57,9 +58,9 @@ public static class BubbleEnglishModule
 public interface IBubbleQuartzEnqueue
 {
     Task EnqueueAsrAsync(string videoId, CancellationToken ct = default);
-    Task EnqueueAiAnalyzeAsync(long aiJobId, CancellationToken ct = default);
+    Task EnqueueAiAnalyzeAsync(string aiJobId, CancellationToken ct = default);
     Task EnqueueUnitAudioAsync(string videoId, CancellationToken ct = default);
-    Task EnqueuePipelineRunAsync(string videoId, long? aiJobId = null, CancellationToken ct = default);
+    Task EnqueuePipelineRunAsync(string videoId, string? aiJobId = null, CancellationToken ct = default);
 }
 
 internal class BubbleQuartzEnqueue : IBubbleQuartzEnqueue
@@ -70,16 +71,16 @@ internal class BubbleQuartzEnqueue : IBubbleQuartzEnqueue
     public Task EnqueueAsrAsync(string videoId, CancellationToken ct = default)
         => EnqueueAsync(AsrTranscribeJob.JobKeyName, new JobDataMap { { "videoId", videoId } }, ct);
 
-    public Task EnqueueAiAnalyzeAsync(long aiJobId, CancellationToken ct = default)
+    public Task EnqueueAiAnalyzeAsync(string aiJobId, CancellationToken ct = default)
         => EnqueueAsync(AiAnalyzeJob.JobKeyName, new JobDataMap { { "aiJobId", aiJobId } }, ct);
 
     public Task EnqueueUnitAudioAsync(string videoId, CancellationToken ct = default)
         => EnqueueAsync(UnitAudioJob.JobKeyName, new JobDataMap { { "videoId", videoId } }, ct);
 
-    public Task EnqueuePipelineRunAsync(string videoId, long? aiJobId = null, CancellationToken ct = default)
+    public Task EnqueuePipelineRunAsync(string videoId, string? aiJobId = null, CancellationToken ct = default)
     {
         var map = new JobDataMap { { "videoId", videoId } };
-        if (aiJobId.HasValue) map["aiJobId"] = aiJobId.Value;
+        if (aiJobId.IsNotEmptyOrNull()) map["aiJobId"] = aiJobId;
         return EnqueueAsync(PipelineRunJob.JobKeyName, map, ct);
     }
 

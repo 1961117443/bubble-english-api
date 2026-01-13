@@ -49,6 +49,7 @@ public class BubbleAdminPipelineService : IDynamicApiController, ITransient
 
         var job = new BubbleAiJobEntity
         {
+            Id = SnowflakeIdHelper.NextId(),
             VideoId = v.Id,
             Status = "queued",
             Provider = string.IsNullOrWhiteSpace(input.provider) ? null : input.provider.Trim(),
@@ -58,9 +59,9 @@ public class BubbleAdminPipelineService : IDynamicApiController, ITransient
             OutputJson = string.Empty,
             ErrorMessage = string.Empty
         };
-        var jobId = await _db.Insertable(job).ExecuteReturnIdentityAsync();
-        job.Id = jobId;
+        await _db.Insertable(job).ExecuteCommandAsync();
 
+        var jobId = job.Id;
         v.Status = "analyzing";
         v.AnalyzeJobId = jobId;
         v.UpdateTime = DateTime.Now;
@@ -95,6 +96,7 @@ public class BubbleAdminPipelineService : IDynamicApiController, ITransient
         // 先创建 AI Job（不直接触发 AiAnalyzeJob），交给 PipelineRunJob 串行推进
         var job = new BubbleAiJobEntity
         {
+            Id = SnowflakeIdHelper.NextId(),
             VideoId = v.Id,
             Status = "queued",
             Provider = string.IsNullOrWhiteSpace(input.provider) ? null : input.provider.Trim(),
@@ -104,8 +106,8 @@ public class BubbleAdminPipelineService : IDynamicApiController, ITransient
             OutputJson = string.Empty,
             ErrorMessage = string.Empty
         };
-        var jobId = await _db.Insertable(job).ExecuteReturnIdentityAsync();
-
+        await _db.Insertable(job).ExecuteCommandAsync();
+        var jobId = job.Id;
         v.Status = "analyzing";
         v.AnalyzeJobId = jobId;
         v.UpdateTime = DateTime.Now;

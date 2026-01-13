@@ -1,6 +1,7 @@
 namespace AI.BubbleEnglish.Infrastructure.Jobs;
 
 using AI.BubbleEnglish.Entitys;
+using QT.Common.Extension;
 using Quartz;
 using SqlSugar;
 
@@ -35,10 +36,10 @@ public class PipelineRunJob : IJob
         var videoId = map.GetString("videoId") ?? string.Empty;
         if (string.IsNullOrWhiteSpace(videoId)) return;
 
-        long? aiJobId = null;
+        string? aiJobId = null;
         if (map.ContainsKey("aiJobId"))
         {
-            try { aiJobId = Convert.ToInt64(map["aiJobId"]); } catch { /* ignore */ }
+            try { aiJobId = map["aiJobId"]?.ToString(); } catch { /* ignore */ }
         }
 
         var v = await _db.Queryable<BubbleVideoEntity>().SingleAsync(x => x.Id == videoId);
@@ -74,9 +75,9 @@ public class PipelineRunJob : IJob
         }
 
         // 2) AI Analyze：必须要有 aiJobId 才推进
-        if (aiJobId.HasValue && aiJobId.Value > 0)
+        if (aiJobId.IsNotEmptyOrNull())
         {
-            var aiJob = await _db.Queryable<BubbleAiJobEntity>().SingleAsync(x => x.Id == aiJobId.Value);
+            var aiJob = await _db.Queryable<BubbleAiJobEntity>().SingleAsync(x => x.Id == aiJobId);
             if (aiJob == null) return;
 
             if (aiJob.Status == "failed")
@@ -85,7 +86,7 @@ public class PipelineRunJob : IJob
             if (aiJob.Status == "queued")
             {
                 // 如果还没开始跑，则触发一次（幂等由 Quartz 触发粒度保证）
-                await _enqueue.EnqueueAiAnalyzeAsync(aiJobId.Value, ct);
+                await _enqueue.EnqueueAiAnalyzeAsync(aiJobId, ct);
                 await RequeueSelfAsync(10);
                 return;
             }

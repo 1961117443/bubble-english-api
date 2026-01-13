@@ -9,8 +9,8 @@ using System;
 [SugarTable("bubble_ai_job", TableDescription = "Bubble AI 分析任务")]
 public class BubbleAiJobEntity
 {
-    [SugarColumn(IsPrimaryKey = true, IsIdentity = true, ColumnDescription = "任务ID")]
-    public long Id { get; set; }
+    [SugarColumn(IsPrimaryKey = true,ColumnDescription = "任务ID")]
+    public string Id { get; set; }
 
     [SugarColumn(ColumnDescription = "视频ID")]
     public string VideoId { get; set; }

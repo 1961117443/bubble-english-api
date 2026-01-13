@@ -50,7 +50,7 @@ public class BubbleVideoEntity :EntityBase<string>
     public string? LastError { get; set; }
 
     [SugarColumn(ColumnDescription = "分析作业ID")]
-    public long? AnalyzeJobId { get; set; }
+    public string? AnalyzeJobId { get; set; }
 
     [SugarColumn(ColumnDescription = "创建时间")]
     public DateTime CreateTime { get; set; }

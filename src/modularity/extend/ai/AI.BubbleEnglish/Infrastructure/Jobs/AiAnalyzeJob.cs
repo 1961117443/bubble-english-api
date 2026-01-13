@@ -4,6 +4,7 @@ using AI.BubbleEnglish.Entitys;
 using AI.BubbleEnglish.Infrastructure.Ai;
 using AI.BubbleEnglish.Infrastructure.Storage;
 using global::Quartz;
+using QT.Common.Extension;
 using Quartz;
 using SqlSugar;
 using System.Text.Json;
@@ -29,8 +30,8 @@ public class AiAnalyzeJob : IJob
     public async Task Execute(IJobExecutionContext context)
     {
         var ct = context.CancellationToken;
-        var jobId = context.MergedJobDataMap.GetLong("aiJobId");
-        if (jobId <= 0) return;
+        var jobId = context.MergedJobDataMap.GetString("aiJobId");
+        if (jobId.IsNullOrEmpty()) return;
 
         var job = await _db.Queryable<BubbleAiJobEntity>().SingleAsync(x => x.Id == jobId);
         if (job == null) return;

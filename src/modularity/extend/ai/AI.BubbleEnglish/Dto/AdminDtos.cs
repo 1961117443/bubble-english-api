@@ -50,7 +50,7 @@ public class AdminVideoOutput
 /// </summary>
 public class AdminAiJobOutput
 {
-    public long id { get; set; }
+    public string id { get; set; }
     public string videoId { get; set; }
     public string status { get; set; } = string.Empty;
     public string model { get; set; } = string.Empty;
