@@ -2,6 +2,7 @@
 
 namespace AI.BubbleEnglish;
 
+using QT.Common.Core;
 using QT.Common.Core.Security;
 
 /// <summary>
@@ -9,42 +10,41 @@ using QT.Common.Core.Security;
 /// </summary>
 [ApiDescriptionSettings(ModuleConst.BubbleEnglish, Tag = "BubbleAdmin", Name = "Unit", Order = 2030)]
 [Route("api/bubble/admin/[controller]")]
-public class BubbleAdminUnitService : IDynamicApiController, ITransient
+public class BubbleAdminUnitService : QTBaseService<BubbleUnitEntity, AdminUnitUpsertInput, AdminUnitUpsertInput, AdminUnitOutput, AdminUnitQuery, AdminUnitOutput>, IDynamicApiController, ITransient
 {
-    private readonly SqlSugarClient _db;
-
-    public BubbleAdminUnitService(ISqlSugarClient context)
+    public BubbleAdminUnitService(
+        ISqlSugarRepository<BubbleUnitEntity> repository,
+        ISqlSugarClient context,
+        IUserManager userManager) : base(repository, context, userManager)
     {
-        _db = (SqlSugarClient)context;
     }
-
-    [HttpGet("")]
-    public async Task<List<AdminUnitOutput>> List([FromQuery] AdminUnitQuery query)
+    protected override Task<SqlSugarPagedList<AdminUnitOutput>> GetPageList([FromQuery] AdminUnitQuery input)
     {
-        var q = _db.Queryable<BubbleUnitEntity>();
-        if (!string.IsNullOrWhiteSpace(query.videoId))
+        var q = _repository.Context.Queryable<BubbleUnitEntity>();
+        if (!string.IsNullOrWhiteSpace(input.videoId))
         {
-            var vid = query.videoId.Trim();
+            var vid = input.videoId.Trim();
             q = q.Where(x => x.VideoId == vid);
         }
-        if (!string.IsNullOrWhiteSpace(query.unitType))
-            q = q.Where(x => x.UnitType == query.unitType!.Trim());
-        if (!string.IsNullOrWhiteSpace(query.status))
-            q = q.Where(x => x.Status == query.status!.Trim());
-        if (!string.IsNullOrWhiteSpace(query.keyword))
+        if (!string.IsNullOrWhiteSpace(input.unitType))
+            q = q.Where(x => x.UnitType == input.unitType!.Trim());
+        if (!string.IsNullOrWhiteSpace(input.status))
+            q = q.Where(x => x.Status == input.status!.Trim());
+        if (!string.IsNullOrWhiteSpace(input.keyword))
         {
-            var kw = query.keyword.Trim();
+            var kw = input.keyword.Trim();
             q = q.Where(x => x.Text.Contains(kw) || x.Meaning.Contains(kw));
         }
 
-        var list = await q.OrderByDescending(x => x.Id).ToListAsync();
-        return list.Select(ToOutput).ToList();
+        return q.OrderByDescending(x => x.Id)
+            .Select<AdminUnitOutput>()
+            .ToPagedListAsync(input.currentPage, input.pageSize);
     }
 
     [HttpGet("detail")]
     public async Task<AdminUnitOutput> Detail([FromQuery] string id)
     {
-        var e = await _db.Queryable<BubbleUnitEntity>().SingleAsync(x => x.Id == id);
+        var e = await _repository.Context.Queryable<BubbleUnitEntity>().SingleAsync(x => x.Id == id);
         if (e == null) throw Oops.Oh("unit不存在");
         return ToOutput(e);
     }
@@ -62,7 +62,7 @@ public class BubbleAdminUnitService : IDynamicApiController, ITransient
         if (!string.IsNullOrWhiteSpace(input.id))
         {
             var id = input.id.Trim();
-            var e = await _db.Queryable<BubbleUnitEntity>().SingleAsync(x => x.Id == id);
+            var e = await _repository.Context.Queryable<BubbleUnitEntity>().SingleAsync(x => x.Id == id);
             if (e == null) throw Oops.Oh("unit不存在");
 
             e.VideoId = string.IsNullOrWhiteSpace(input.videoId) ? null : input.videoId.Trim();
@@ -75,7 +75,7 @@ public class BubbleAdminUnitService : IDynamicApiController, ITransient
             e.Status = (input.status ?? "draft").Trim();
             e.UpdateTime = DateTime.Now;
 
-            await _db.Updateable(e).ExecuteCommandAsync();
+            await _repository.Context.Updateable(e).ExecuteCommandAsync();
             return ToOutput(e);
         }
         else
@@ -94,7 +94,7 @@ public class BubbleAdminUnitService : IDynamicApiController, ITransient
                 CreateTime = DateTime.Now,
                 UpdateTime = DateTime.Now
             };
-            await _db.Insertable(e).ExecuteCommandAsync();
+            await _repository.Context.Insertable(e).ExecuteCommandAsync();
             return ToOutput(e);
         }
     }
@@ -105,7 +105,7 @@ public class BubbleAdminUnitService : IDynamicApiController, ITransient
     {
         string id = (string)(body?.id ?? "");
         if (string.IsNullOrWhiteSpace(id)) throw Oops.Oh("id鏃犳晥");
-        await _db.Deleteable<BubbleUnitEntity>().Where(x => x.Id == id).ExecuteCommandAsync();
+        await _repository.Context.Deleteable<BubbleUnitEntity>().Where(x => x.Id == id).ExecuteCommandAsync();
         return new { ok = true };
     }
 

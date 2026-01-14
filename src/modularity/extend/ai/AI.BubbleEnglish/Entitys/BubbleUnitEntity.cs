@@ -1,5 +1,6 @@
 namespace AI.BubbleEnglish.Entitys;
 
+using QT.Common.Contracts;
 using SqlSugar;
 using System;
 
@@ -7,10 +8,10 @@ using System;
 /// Unit 素材池（word/sentence/knowledge）
 /// </summary>
 [SugarTable("bubble_unit", TableDescription = "Bubble Unit 素材池")]
-public class BubbleUnitEntity
+public class BubbleUnitEntity : EntityBase<string>
 {
     [SugarColumn(IsPrimaryKey = true,  ColumnDescription = "UnitID")]
-    public string Id { get; set; }
+    public override string Id { get; set; }
 
     [SugarColumn(ColumnDescription = "关联视频ID")]
     public string? VideoId { get; set; }
