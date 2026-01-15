@@ -1,15 +1,16 @@
 ﻿namespace AI.BubbleEnglish.Entitys;
 
+using QT.Common.Contracts;
 using SqlSugar;
 using System;
 #region 课程主表
 #endregion
 
 [SugarTable("bubble_course", TableDescription = "课程主表")]
-public class BubbleCourseEntity
+public class BubbleCourseEntity : EntityBase<string>
 {
-    [SugarColumn(IsPrimaryKey = true, IsIdentity = true, ColumnDescription = "课程ID")]
-    public long Id { get; set; }
+    [SugarColumn(IsPrimaryKey = true, ColumnDescription = "课程ID")]
+    public override string Id { get; set; }
 
     [SugarColumn(ColumnDescription = "课程唯一key")]
     public string CourseKey { get; set; }

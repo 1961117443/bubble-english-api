@@ -1,36 +1,40 @@
 namespace AI.BubbleEnglish;
 
+using QT.Common.Core;
+using QT.Common.Core.Security;
+
 /// <summary>
 /// 后台：主题管理
 /// </summary>
 [ApiDescriptionSettings(ModuleConst.BubbleEnglish, Tag = "BubbleAdmin", Name = "Theme", Order = 2050)]
 [Route("api/bubble/admin/[controller]")]
-public class BubbleAdminThemeService : IDynamicApiController, ITransient
+public class BubbleAdminThemeService : QTBaseService<BubbleThemeEntity, AdminThemeUpsertInput, AdminThemeUpsertInput, AdminThemeOutput, AdminThemeQuery, AdminThemeOutput>, IDynamicApiController, ITransient
 {
-    private readonly SqlSugarClient _db;
-
-    public BubbleAdminThemeService(ISqlSugarClient context)
+    public BubbleAdminThemeService(
+        ISqlSugarRepository<BubbleThemeEntity> repository,
+        ISqlSugarClient context,
+        IUserManager userManager) : base(repository, context, userManager)
     {
-        _db = (SqlSugarClient)context;
     }
 
-    [HttpGet("")]
-    public async Task<List<AdminThemeOutput>> List([FromQuery] string? keyword)
+    protected override Task<SqlSugarPagedList<AdminThemeOutput>> GetPageList([FromQuery] AdminThemeQuery input)
     {
-        var q = _db.Queryable<BubbleThemeEntity>();
-        if (!string.IsNullOrWhiteSpace(keyword))
+        var q = _repository.Context.Queryable<BubbleThemeEntity>();
+        if (!string.IsNullOrWhiteSpace(input.keyword))
         {
-            var kw = keyword.Trim();
+            var kw = input.keyword.Trim();
             q = q.Where(x => x.ThemeKey.Contains(kw) || x.Title.Contains(kw));
         }
-        var list = await q.OrderBy(x => x.Sort).OrderByDescending(x => x.Id).ToListAsync();
-        return list.Select(ToOutput).ToList();
+
+        return q.OrderBy(x => x.Sort).OrderByDescending(x => x.Id)
+            .Select<AdminThemeOutput>()
+            .ToPagedListAsync(input.currentPage, input.pageSize);
     }
 
     [HttpGet("detail")]
-    public async Task<AdminThemeOutput> Detail([FromQuery] long id)
+    public async Task<AdminThemeOutput> Detail([FromQuery] string id)
     {
-        var e = await _db.Queryable<BubbleThemeEntity>().SingleAsync(x => x.Id == id);
+        var e = await _repository.Context.Queryable<BubbleThemeEntity>().SingleAsync(x => x.Id == id);
         if (e == null) throw Oops.Oh("主题不存在");
         return ToOutput(e);
     }
@@ -42,9 +46,10 @@ public class BubbleAdminThemeService : IDynamicApiController, ITransient
         if (string.IsNullOrWhiteSpace(input.themeKey)) throw Oops.Oh("themeKey不能为空");
         if (string.IsNullOrWhiteSpace(input.title)) throw Oops.Oh("title不能为空");
 
-        if (input.id.HasValue && input.id.Value > 0)
+        var id = (input.id ?? string.Empty).Trim();
+        if (!string.IsNullOrWhiteSpace(id) && id != "0")
         {
-            var e = await _db.Queryable<BubbleThemeEntity>().SingleAsync(x => x.Id == input.id.Value);
+            var e = await _repository.Context.Queryable<BubbleThemeEntity>().SingleAsync(x => x.Id == id);
             if (e == null) throw Oops.Oh("主题不存在");
 
             e.ThemeKey = input.themeKey.Trim();
@@ -53,34 +58,32 @@ public class BubbleAdminThemeService : IDynamicApiController, ITransient
             e.Description = (input.description ?? string.Empty).Trim();
             e.Sort = input.sort;
             e.Enabled = input.enabled;
-            await _db.Updateable(e).ExecuteCommandAsync();
+            await _repository.Context.Updateable(e).ExecuteCommandAsync();
             return ToOutput(e);
         }
-        else
+
+        var entity = new BubbleThemeEntity
         {
-            var e = new BubbleThemeEntity
-            {
-                ThemeKey = input.themeKey.Trim(),
-                Title = input.title.Trim(),
-                CoverUrl = (input.coverUrl ?? string.Empty).Trim(),
-                Description = (input.description ?? string.Empty).Trim(),
-                Sort = input.sort,
-                Enabled = input.enabled,
-                CreateTime = DateTime.Now
-            };
-            var id = await _db.Insertable(e).ExecuteReturnIdentityAsync();
-            e.Id = id;
-            return ToOutput(e);
-        }
+            Id = SnowflakeIdHelper.NextId(),
+            ThemeKey = input.themeKey.Trim(),
+            Title = input.title.Trim(),
+            CoverUrl = (input.coverUrl ?? string.Empty).Trim(),
+            Description = (input.description ?? string.Empty).Trim(),
+            Sort = input.sort,
+            Enabled = input.enabled,
+            CreateTime = DateTime.Now
+        };
+        await _repository.Context.Insertable(entity).ExecuteCommandAsync();
+        return ToOutput(entity);
     }
 
     [HttpPost("delete")]
     [Consumes("application/json")]
     public async Task<dynamic> Delete([FromBody] dynamic body)
     {
-        long id = (long)(body?.id ?? 0);
-        if (id <= 0) throw Oops.Oh("id无效");
-        await _db.Deleteable<BubbleThemeEntity>().Where(x => x.Id == id).ExecuteCommandAsync();
+        var id = (body?.id ?? "").ToString();
+        if (string.IsNullOrWhiteSpace(id)) throw Oops.Oh("id无效");
+        await _repository.Context.Deleteable<BubbleThemeEntity>().Where(x => x.Id == id).ExecuteCommandAsync();
         return new { ok = true };
     }
 

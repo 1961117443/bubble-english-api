@@ -1,41 +1,44 @@
 namespace AI.BubbleEnglish;
 
+using QT.Common.Core;
+using QT.Common.Core.Security;
+
 /// <summary>
 /// 后台：课程管理（course v2 的容器，units 编排可另做表或 JSON 字段）
 /// </summary>
 [ApiDescriptionSettings(ModuleConst.BubbleEnglish, Tag = "BubbleAdmin", Name = "Course", Order = 2040)]
 [Route("api/bubble/admin/[controller]")]
-public class BubbleAdminCourseService : IDynamicApiController, ITransient
+public class BubbleAdminCourseService : QTBaseService<BubbleCourseEntity, AdminCourseUpsertInput, AdminCourseUpsertInput, AdminCourseOutput, AdminCourseQuery, AdminCourseOutput>, IDynamicApiController, ITransient
 {
-    private readonly SqlSugarClient _db;
-
-    public BubbleAdminCourseService(ISqlSugarClient context)
+    public BubbleAdminCourseService(
+        ISqlSugarRepository<BubbleCourseEntity> repository,
+        ISqlSugarClient context,
+        IUserManager userManager) : base(repository, context, userManager)
     {
-        _db = (SqlSugarClient)context;
     }
 
-    [HttpGet("")]
-    public async Task<List<AdminCourseOutput>> List([FromQuery] AdminCourseQuery query)
+    protected override Task<SqlSugarPagedList<AdminCourseOutput>> GetPageList([FromQuery] AdminCourseQuery input)
     {
-        var q = _db.Queryable<BubbleCourseEntity>();
-        if (!string.IsNullOrWhiteSpace(query.keyword))
+        var q = _repository.Context.Queryable<BubbleCourseEntity>();
+        if (!string.IsNullOrWhiteSpace(input.keyword))
         {
-            var kw = query.keyword.Trim();
+            var kw = input.keyword.Trim();
             q = q.Where(x => x.Title.Contains(kw) || x.Description.Contains(kw));
         }
-        if (query.isPublish.HasValue)
+        if (input.isPublish.HasValue)
         {
-            q = q.Where(x => x.IsPublish == query.isPublish.Value);
+            q = q.Where(x => x.IsPublish == input.isPublish.Value);
         }
         // themeKey 目前 BubbleCourseEntity 没字段，先忽略（后续可加 ThemeKey 字段或关联表）
-        var list = await q.OrderByDescending(x => x.Id).ToListAsync();
-        return list.Select(ToOutput).ToList();
+        return q.OrderByDescending(x => x.Id)
+            .Select<AdminCourseOutput>()
+            .ToPagedListAsync(input.currentPage, input.pageSize);
     }
 
     [HttpGet("detail")]
-    public async Task<AdminCourseOutput> Detail([FromQuery] long id)
+    public async Task<AdminCourseOutput> Detail([FromQuery] string id)
     {
-        var e = await _db.Queryable<BubbleCourseEntity>().SingleAsync(x => x.Id == id);
+        var e = await _repository.Context.Queryable<BubbleCourseEntity>().SingleAsync(x => x.Id == id);
         if (e == null) throw Oops.Oh("课程不存在");
         return ToOutput(e);
     }
@@ -46,9 +49,10 @@ public class BubbleAdminCourseService : IDynamicApiController, ITransient
     {
         if (string.IsNullOrWhiteSpace(input.title)) throw Oops.Oh("title不能为空");
 
-        if (input.id.HasValue && input.id.Value > 0)
+        var id = (input.id ?? string.Empty).Trim();
+        if (!string.IsNullOrWhiteSpace(id) && id != "0")
         {
-            var e = await _db.Queryable<BubbleCourseEntity>().SingleAsync(x => x.Id == input.id.Value);
+            var e = await _repository.Context.Queryable<BubbleCourseEntity>().SingleAsync(x => x.Id == id);
             if (e == null) throw Oops.Oh("课程不存在");
 
             e.Title = input.title.Trim();
@@ -56,34 +60,32 @@ public class BubbleAdminCourseService : IDynamicApiController, ITransient
             e.Description = (input.description ?? string.Empty).Trim();
             e.Sort = input.sort;
             e.IsPublish = input.isPublish;
-            await _db.Updateable(e).ExecuteCommandAsync();
+            await _repository.Context.Updateable(e).ExecuteCommandAsync();
             return ToOutput(e);
         }
-        else
+
+        var entity = new BubbleCourseEntity
         {
-            var e = new BubbleCourseEntity
-            {
-                Title = input.title.Trim(),
-                Cover = (input.cover ?? string.Empty).Trim(),
-                Description = (input.description ?? string.Empty).Trim(),
-                Sort = input.sort,
-                IsPublish = input.isPublish,
-                CreateTime = DateTime.Now
-            };
-            var id = await _db.Insertable(e).ExecuteReturnIdentityAsync();
-            e.Id = id;
-            return ToOutput(e);
-        }
+            Id = SnowflakeIdHelper.NextId(),
+            Title = input.title.Trim(),
+            Cover = (input.cover ?? string.Empty).Trim(),
+            Description = (input.description ?? string.Empty).Trim(),
+            Sort = input.sort,
+            IsPublish = input.isPublish,
+            CreateTime = DateTime.Now
+        };
+        await _repository.Context.Insertable(entity).ExecuteCommandAsync();
+        return ToOutput(entity);
     }
 
     [HttpPost("actions/publish")]
     [Consumes("application/json")]
     public async Task<dynamic> SetPublish([FromBody] dynamic body)
     {
-        long id = (long)(body?.id ?? 0);
+        var id = (body?.id ?? "").ToString();
         int isPublish = (int)(body?.isPublish ?? 0);
-        if (id <= 0) throw Oops.Oh("id无效");
-        await _db.Updateable<BubbleCourseEntity>()
+        if (string.IsNullOrWhiteSpace(id)) throw Oops.Oh("id无效");
+        await _repository.Context.Updateable<BubbleCourseEntity>()
             .SetColumns(x => x.IsPublish == isPublish)
             .Where(x => x.Id == id)
             .ExecuteCommandAsync();
@@ -94,9 +96,9 @@ public class BubbleAdminCourseService : IDynamicApiController, ITransient
     [Consumes("application/json")]
     public async Task<dynamic> Delete([FromBody] dynamic body)
     {
-        long id = (long)(body?.id ?? 0);
-        if (id <= 0) throw Oops.Oh("id无效");
-        await _db.Deleteable<BubbleCourseEntity>().Where(x => x.Id == id).ExecuteCommandAsync();
+        var id = (body?.id ?? "").ToString();
+        if (string.IsNullOrWhiteSpace(id)) throw Oops.Oh("id无效");
+        await _repository.Context.Deleteable<BubbleCourseEntity>().Where(x => x.Id == id).ExecuteCommandAsync();
         return new { ok = true };
     }
 

@@ -1,5 +1,6 @@
 namespace AI.BubbleEnglish.Entitys;
 
+using QT.Common.Contracts;
 using SqlSugar;
 using System;
 
@@ -7,10 +8,10 @@ using System;
 /// 主题（zoo/farm/body...）
 /// </summary>
 [SugarTable("bubble_theme", TableDescription = "Bubble 主题")]
-public class BubbleThemeEntity
+public class BubbleThemeEntity : EntityBase<string>
 {
-    [SugarColumn(IsPrimaryKey = true, IsIdentity = true, ColumnDescription = "主题ID")]
-    public long Id { get; set; }
+    [SugarColumn(IsPrimaryKey = true, ColumnDescription = "主题ID")]
+    public override string Id { get; set; }
 
     [SugarColumn(ColumnDescription = "主题 Key")]
     public string ThemeKey { get; set; } = string.Empty;
