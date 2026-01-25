@@ -81,7 +81,7 @@ public class BubbleAdminThemeService : QTBaseService<BubbleThemeEntity, AdminThe
     [Consumes("application/json")]
     public async Task<dynamic> Delete([FromBody] dynamic body)
     {
-        var id = (body?.id ?? "").ToString();
+        string id = (body?.id ?? "").ToString();
         if (string.IsNullOrWhiteSpace(id)) throw Oops.Oh("id无效");
         await _repository.Context.Deleteable<BubbleThemeEntity>().Where(x => x.Id == id).ExecuteCommandAsync();
         return new { ok = true };

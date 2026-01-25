@@ -1,6 +1,7 @@
 
 using QT.Common.Const;
 using QT.Common.Extension;
+using QT.Common.Filter;
 
 namespace AI.BubbleEnglish;
 
@@ -19,13 +20,13 @@ public class BubbleAdminAiJobService : IDynamicApiController, ITransient
     }
 
     [HttpGet("")]
-    public async Task<List<AdminAiJobOutput>> List([FromQuery] string? videoId, [FromQuery] string? status)
+    public async Task<PageResult<AdminAiJobOutput>> List([FromQuery] string? videoId, [FromQuery] string? status, [FromQuery] PageInputBase input)
     {
         var q = _db.Queryable<BubbleAiJobEntity>();
         if (!string.IsNullOrEmpty(videoId)) q = q.Where(x => x.VideoId == videoId);
         if (!string.IsNullOrWhiteSpace(status)) q = q.Where(x => x.Status == status!.Trim());
-        var list = await q.OrderByDescending(x => x.Id).ToListAsync();
-        return list.Select(ToOutput).ToList();
+        var list = await q.OrderByDescending(x => x.Id).Select<AdminAiJobOutput>().ToPagedListAsync(input.currentPage, input.pageSize);
+        return PageResult<AdminAiJobOutput>.SqlSugarPagedList(list);
     }
 
     [HttpGet("detail")]

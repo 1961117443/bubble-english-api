@@ -82,7 +82,7 @@ public class BubbleAdminCourseService : QTBaseService<BubbleCourseEntity, AdminC
     [Consumes("application/json")]
     public async Task<dynamic> SetPublish([FromBody] dynamic body)
     {
-        var id = (body?.id ?? "").ToString();
+        string id = (body?.id ?? "").ToString();
         int isPublish = (int)(body?.isPublish ?? 0);
         if (string.IsNullOrWhiteSpace(id)) throw Oops.Oh("id无效");
         await _repository.Context.Updateable<BubbleCourseEntity>()
@@ -96,7 +96,7 @@ public class BubbleAdminCourseService : QTBaseService<BubbleCourseEntity, AdminC
     [Consumes("application/json")]
     public async Task<dynamic> Delete([FromBody] dynamic body)
     {
-        var id = (body?.id ?? "").ToString();
+        string id = (body?.id ?? "").ToString();
         if (string.IsNullOrWhiteSpace(id)) throw Oops.Oh("id无效");
         await _repository.Context.Deleteable<BubbleCourseEntity>().Where(x => x.Id == id).ExecuteCommandAsync();
         return new { ok = true };
